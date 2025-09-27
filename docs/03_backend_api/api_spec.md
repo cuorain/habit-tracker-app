@@ -26,7 +26,6 @@ Authorization: Bearer <token>
   ```json
   {
     "username": "string",
-    "email": "string",
     "password": "string"
   }
   ```
@@ -35,7 +34,6 @@ Authorization: Bearer <token>
   {
     "id": "number",
     "username": "string",
-    "email": "string",
     "token": "string"
   }
   ```
@@ -45,7 +43,7 @@ Authorization: Bearer <token>
 - **Request Body:**
   ```json
   {
-    "email": "string",
+    "username": "string",
     "password": "string"
   }
   ```
@@ -54,7 +52,6 @@ Authorization: Bearer <token>
   {
     "id": "number",
     "username": "string",
-    "email": "string",
     "token": "string"
   }
   ```

@@ -10,7 +10,6 @@
 CREATE TABLE users (
     id BIGSERIAL PRIMARY KEY,
     username VARCHAR(50) UNIQUE NOT NULL,
-    email VARCHAR(100) UNIQUE NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -20,7 +19,6 @@ CREATE TABLE users (
 **フィールド説明:**
 - `id`: ユーザーID (主キー)
 - `username`: ユーザー名 (一意)
-- `email`: メールアドレス (一意)
 - `password_hash`: パスワードハッシュ
 - `created_at`: 作成日時
 - `updated_at`: 更新日時
@@ -87,7 +85,6 @@ CREATE TABLE habit_progress (
 ### パフォーマンス向上のためのインデックス
 ```sql
 -- ユーザー検索用
-CREATE INDEX idx_users_email ON users(email);
 CREATE INDEX idx_users_username ON users(username);
 
 -- 習慣検索用
@@ -124,9 +121,9 @@ UNIQUE (habit_id, date);
 
 ### ユーザーデータ
 ```sql
-INSERT INTO users (username, email, password_hash) VALUES
-('testuser', 'test@example.com', '$2a$10$...'),
-('demo', 'demo@example.com', '$2a$10$...');
+INSERT INTO users (username, password_hash) VALUES
+('testuser', '$2a$10$...'),
+('demo', '$2a$10$...');
 ```
 
 ### 習慣データ
