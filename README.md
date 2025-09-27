@@ -5,7 +5,7 @@
 
 ## 技術スタック
 - **バックエンド**: Java 17 + Spring Boot 3.2.0
-- **フロントエンド**: HTML5 + CSS3 + TypeScript
+- **フロントエンド**: HTML5 + CSS3 + JavaScript
 - **データベース**: PostgreSQL
 - **認証**: JWT (JSON Web Token)
 - **グラフ**: Chart.js
@@ -30,7 +30,7 @@
 ├── backend/              # Java/Spring Boot バックエンド
 │   ├── src/
 │   └── pom.xml
-├── frontend/             # HTML/CSS/TypeScript フロントエンド
+├── frontend/             # HTML/CSS/JavaScript フロントエンド
 │   ├── src/
 │   └── package.json
 └── README.md
@@ -74,7 +74,7 @@ GRANT ALL PRIVILEGES ON DATABASE habit_tracker TO habit_user;
 
 ### コーディング規約
 - Java: Google Java Style Guide準拠
-- TypeScript: ESLint + Prettier
+- JavaScript: ESLint + Prettier
 - コミットメッセージ: Conventional Commits
 
 ### テスト

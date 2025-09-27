@@ -4,7 +4,7 @@
 習慣トラッカーアプリケーションのシステムアーキテクチャを定義します。
 
 ## アーキテクチャ概要
-- **フロントエンド**: HTML/CSS/TypeScript (SPA)
+- **フロントエンド**: HTML/CSS/JavaScript (SPA)
 - **バックエンド**: Java/Spring Boot (REST API)
 - **データベース**: PostgreSQL
 - **デプロイ**: Docker
@@ -13,7 +13,7 @@
 ```
 [ユーザー] 
     ↓ HTTP/HTTPS
-[フロントエンド (HTML/CSS/TypeScript)]
+[フロントエンド (HTML/CSS/JavaScript)]
     ↓ REST API
 [バックエンド (Java/Spring Boot)]
     ↓ JDBC
@@ -28,11 +28,12 @@
 - セキュリティ機能の充実
 - スケーラビリティ
 
-### フロントエンド: HTML/CSS/TypeScript
+### フロントエンド: HTML/CSS/JavaScript
 - 軽量で高速
 - 学習コストが低い
 - ブラウザ互換性が高い
 - デバッグが容易
+- 型安全性は不要（シンプルなアプリケーション）
 
 ### データベース: PostgreSQL
 - ACID特性の保証

@@ -66,97 +66,200 @@
 ## 主要コンポーネント
 
 ### 1. App (メインアプリケーション)
-```typescript
+```javascript
 class App {
-    private authService: AuthService;
-    private habitService: HabitService;
-    private currentUser: User | null = null;
+    constructor() {
+        this.authService = new AuthService();
+        this.habitService = new HabitService();
+        this.currentUser = null;
+    }
     
-    init(): void;
-    render(): void;
-    handleAuth(): void;
-    handleLogout(): void;
+    init() {
+        // アプリケーション初期化
+    }
+    
+    render() {
+        // レンダリング処理
+    }
+    
+    handleAuth() {
+        // 認証処理
+    }
+    
+    handleLogout() {
+        // ログアウト処理
+    }
 }
 ```
 
 ### 2. AuthComponent (認証コンポーネント)
-```typescript
+```javascript
 class AuthComponent {
-    private mode: 'login' | 'register' = 'login';
+    constructor() {
+        this.mode = 'login'; // 'login' | 'register'
+    }
     
-    render(): HTMLElement;
-    handleLogin(): void;
-    handleRegister(): void;
-    switchMode(): void;
-    validateForm(): boolean;
+    render() {
+        // 認証画面のレンダリング
+    }
+    
+    handleLogin() {
+        // ログイン処理
+    }
+    
+    handleRegister() {
+        // 登録処理
+    }
+    
+    switchMode() {
+        // ログイン/登録モード切り替え
+    }
+    
+    validateForm() {
+        // フォームバリデーション
+    }
 }
 ```
 
 ### 3. DashboardComponent (ダッシュボード)
-```typescript
+```javascript
 class DashboardComponent {
-    private habits: Habit[] = [];
+    constructor() {
+        this.habits = [];
+    }
     
-    render(): HTMLElement;
-    loadHabits(): void;
-    renderHabitCards(): HTMLElement[];
-    handleAddHabit(): void;
-    handleHabitClick(habitId: number): void;
+    render() {
+        // ダッシュボードのレンダリング
+    }
+    
+    loadHabits() {
+        // 習慣データの読み込み
+    }
+    
+    renderHabitCards() {
+        // 習慣カードのレンダリング
+    }
+    
+    handleAddHabit() {
+        // 新規習慣追加
+    }
+    
+    handleHabitClick(habitId) {
+        // 習慣クリック処理
+    }
 }
 ```
 
 ### 4. HabitCardComponent (習慣カード)
-```typescript
+```javascript
 class HabitCardComponent {
-    private habit: Habit;
-    private progress: HabitProgress[];
+    constructor(habit, progress = []) {
+        this.habit = habit;
+        this.progress = progress;
+    }
     
-    render(): HTMLElement;
-    renderProgress(): HTMLElement;
-    handleEdit(): void;
-    handleDelete(): void;
-    handleProgressUpdate(): void;
+    render() {
+        // 習慣カードのレンダリング
+    }
+    
+    renderProgress() {
+        // 進捗表示のレンダリング
+    }
+    
+    handleEdit() {
+        // 編集処理
+    }
+    
+    handleDelete() {
+        // 削除処理
+    }
+    
+    handleProgressUpdate() {
+        // 進捗更新処理
+    }
 }
 ```
 
 ### 5. HabitDetailComponent (習慣詳細)
-```typescript
+```javascript
 class HabitDetailComponent {
-    private habit: Habit;
-    private progress: HabitProgress[];
-    private selectedPeriod: 'week' | 'month' | 'year' = 'week';
+    constructor(habit, progress = []) {
+        this.habit = habit;
+        this.progress = progress;
+        this.selectedPeriod = 'week'; // 'week' | 'month' | 'year'
+    }
     
-    render(): HTMLElement;
-    renderChart(): HTMLElement;
-    renderProgressHistory(): HTMLElement;
-    handlePeriodChange(): void;
-    handleProgressEdit(): void;
+    render() {
+        // 習慣詳細画面のレンダリング
+    }
+    
+    renderChart() {
+        // グラフのレンダリング
+    }
+    
+    renderProgressHistory() {
+        // 進捗履歴のレンダリング
+    }
+    
+    handlePeriodChange() {
+        // 期間変更処理
+    }
+    
+    handleProgressEdit() {
+        // 進捗編集処理
+    }
 }
 ```
 
 ### 6. HabitFormComponent (習慣フォーム)
-```typescript
+```javascript
 class HabitFormComponent {
-    private habit: Habit | null = null;
-    private isEdit: boolean = false;
+    constructor(habit = null) {
+        this.habit = habit;
+        this.isEdit = !!habit;
+    }
     
-    render(): HTMLElement;
-    handleSubmit(): void;
-    handleCancel(): void;
-    validateForm(): boolean;
-    resetForm(): void;
+    render() {
+        // 習慣フォームのレンダリング
+    }
+    
+    handleSubmit() {
+        // フォーム送信処理
+    }
+    
+    handleCancel() {
+        // キャンセル処理
+    }
+    
+    validateForm() {
+        // フォームバリデーション
+    }
+    
+    resetForm() {
+        // フォームリセット
+    }
 }
 ```
 
 ### 7. ChartComponent (グラフコンポーネント)
-```typescript
+```javascript
 class ChartComponent {
-    private canvas: HTMLCanvasElement;
-    private chart: Chart;
+    constructor(canvas) {
+        this.canvas = canvas;
+        this.chart = null;
+    }
     
-    render(data: ChartData): HTMLElement;
-    updateData(data: ChartData): void;
-    destroy(): void;
+    render(data) {
+        // グラフのレンダリング
+    }
+    
+    updateData(data) {
+        // データ更新
+    }
+    
+    destroy() {
+        // グラフの破棄
+    }
 }
 ```
 

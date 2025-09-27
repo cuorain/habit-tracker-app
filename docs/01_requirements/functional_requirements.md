@@ -35,6 +35,6 @@
 
 ## 技術要件
 - バックエンド: Java/Spring Boot
-- フロントエンド: HTML/CSS/TypeScript
+- フロントエンド: HTML/CSS/JavaScript
 - データベース: PostgreSQL
 - デプロイ: Docker

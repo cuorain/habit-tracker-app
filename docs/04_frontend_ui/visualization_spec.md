@@ -63,75 +63,126 @@ interface CalendarData {
 ## データの扱い
 
 ### 1. データ取得
-```typescript
+```javascript
 class ChartService {
-    async getProgressRateData(habitId: number, period: 'week' | 'month' | 'year'): Promise<ProgressRateData[]>;
-    async getStreakData(habitId: number, period: 'week' | 'month' | 'year'): Promise<StreakData[]>;
-    async getCategoryStats(userId: number): Promise<CategoryStats[]>;
-    async getCalendarData(habitId: number, year: number, month: number): Promise<CalendarData[]>;
+    async getProgressRateData(habitId, period) {
+        // 進捗率データの取得
+    }
+    
+    async getStreakData(habitId, period) {
+        // 連続記録データの取得
+    }
+    
+    async getCategoryStats(userId) {
+        // カテゴリ統計データの取得
+    }
+    
+    async getCalendarData(habitId, year, month) {
+        // カレンダーデータの取得
+    }
 }
 ```
 
 ### 2. データ変換
-```typescript
+```javascript
 class DataTransformer {
-    static transformProgressData(rawData: HabitProgress[]): ProgressRateData[];
-    static calculateStreak(progressData: HabitProgress[]): StreakData[];
-    static groupByCategory(habits: Habit[]): CategoryStats[];
-    static formatCalendarData(progressData: HabitProgress[]): CalendarData[];
+    static transformProgressData(rawData) {
+        // 進捗データの変換
+    }
+    
+    static calculateStreak(progressData) {
+        // 連続記録の計算
+    }
+    
+    static groupByCategory(habits) {
+        // カテゴリ別グループ化
+    }
+    
+    static formatCalendarData(progressData) {
+        // カレンダーデータのフォーマット
+    }
 }
 ```
 
 ### 3. データキャッシュ
-```typescript
+```javascript
 class DataCache {
-    private cache: Map<string, any> = new Map();
-    private ttl: number = 5 * 60 * 1000; // 5分
+    constructor() {
+        this.cache = new Map();
+        this.ttl = 5 * 60 * 1000; // 5分
+    }
     
-    set(key: string, data: any): void;
-    get(key: string): any | null;
-    clear(): void;
-    isExpired(key: string): boolean;
+    set(key, data) {
+        // キャッシュにデータを保存
+    }
+    
+    get(key) {
+        // キャッシュからデータを取得
+    }
+    
+    clear() {
+        // キャッシュをクリア
+    }
+    
+    isExpired(key) {
+        // キャッシュの有効期限チェック
+    }
 }
 ```
 
 ## グラフライブラリ
 
 ### Chart.js の使用
-```typescript
+```javascript
 import Chart from 'chart.js/auto';
 import 'chartjs-adapter-date-fns';
 
 class ChartManager {
-    private charts: Map<string, Chart> = new Map();
+    constructor() {
+        this.charts = new Map();
+    }
     
-    createProgressChart(canvas: HTMLCanvasElement, data: ProgressRateData[]): Chart;
-    createStreakChart(canvas: HTMLCanvasElement, data: StreakData[]): Chart;
-    createCategoryChart(canvas: HTMLCanvasElement, data: CategoryStats[]): Chart;
-    updateChart(chartId: string, data: any): void;
-    destroyChart(chartId: string): void;
+    createProgressChart(canvas, data) {
+        // 進捗グラフの作成
+    }
+    
+    createStreakChart(canvas, data) {
+        // 連続記録グラフの作成
+    }
+    
+    createCategoryChart(canvas, data) {
+        // カテゴリグラフの作成
+    }
+    
+    updateChart(chartId, data) {
+        // グラフの更新
+    }
+    
+    destroyChart(chartId) {
+        // グラフの破棄
+    }
 }
 ```
 
 ### グラフ設定
-```typescript
+```javascript
 const chartConfig = {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
         legend: {
-            position: 'top' as const,
+            position: 'top',
         },
         tooltip: {
-            mode: 'index' as const,
+            mode: 'index',
             intersect: false,
         },
     },
     scales: {
         x: {
-            type: 'time' as const,
+            type: 'time',
             time: {
-                unit: 'day' as const,
+                unit: 'day',
             },
         },
         y: {
@@ -145,13 +196,23 @@ const chartConfig = {
 ## インタラクション
 
 ### 1. 期間選択
-```typescript
+```javascript
 class PeriodSelector {
-    private currentPeriod: 'week' | 'month' | 'year' = 'week';
+    constructor() {
+        this.currentPeriod = 'week'; // 'week' | 'month' | 'year'
+    }
     
-    render(): HTMLElement;
-    handlePeriodChange(period: 'week' | 'month' | 'year'): void;
-    updateCharts(): void;
+    render() {
+        // 期間選択UIのレンダリング
+    }
+    
+    handlePeriodChange(period) {
+        // 期間変更処理
+    }
+    
+    updateCharts() {
+        // グラフの更新
+    }
 }
 ```
 
@@ -161,23 +222,32 @@ class PeriodSelector {
 - ダブルクリックでのリセット
 
 ### 3. ツールチップ
-```typescript
-interface TooltipData {
-    date: string;
-    value: number;
-    label: string;
-    additionalInfo?: string;
-}
+```javascript
+// ツールチップデータの例
+const tooltipData = {
+    date: '2024-01-01',
+    value: 85,
+    label: '進捗率',
+    additionalInfo: '連続記録: 5日'
+};
 ```
 
 ## パフォーマンス最適化
 
 ### 1. データの遅延読み込み
-```typescript
+```javascript
 class LazyDataLoader {
-    async loadDataOnDemand(habitId: number, period: string): Promise<any>;
-    preloadNextPeriod(habitId: number, currentPeriod: string): void;
-    clearUnusedData(): void;
+    async loadDataOnDemand(habitId, period) {
+        // 必要に応じてデータを読み込み
+    }
+    
+    preloadNextPeriod(habitId, currentPeriod) {
+        // 次の期間のデータを事前読み込み
+    }
+    
+    clearUnusedData() {
+        // 使用されていないデータをクリア
+    }
 }
 ```
 
@@ -186,23 +256,38 @@ class LazyDataLoader {
 - スクロール時の動的読み込み
 
 ### 3. メモリ管理
-```typescript
+```javascript
 class MemoryManager {
-    private maxCharts: number = 10;
+    constructor() {
+        this.maxCharts = 10;
+    }
     
-    cleanupOldCharts(): void;
-    optimizeMemoryUsage(): void;
+    cleanupOldCharts() {
+        // 古いグラフのクリーンアップ
+    }
+    
+    optimizeMemoryUsage() {
+        // メモリ使用量の最適化
+    }
 }
 ```
 
 ## エラーハンドリング
 
 ### 1. データ取得エラー
-```typescript
+```javascript
 class ChartErrorHandler {
-    handleDataLoadError(error: Error): void;
-    showErrorMessage(message: string): void;
-    retryDataLoad(): void;
+    handleDataLoadError(error) {
+        // データ読み込みエラーの処理
+    }
+    
+    showErrorMessage(message) {
+        // エラーメッセージの表示
+    }
+    
+    retryDataLoad() {
+        // データ読み込みの再試行
+    }
 }
 ```
 
