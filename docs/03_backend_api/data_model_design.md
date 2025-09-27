@@ -24,7 +24,7 @@ CREATE TABLE users (
 **フィールド説明:**
 - `id`: ユーザーID (主キー)
 - `username`: ユーザー名 (一意)
-- `password_hash`: パスワードハッシュ
+- `password_hash`: パスワードハッシュ (BCryptアルゴリズムを使用し、ソルトは自動生成されます)
 - `created_at`: 作成日時
 - `updated_at`: 更新日時
 
@@ -148,8 +148,8 @@ UNIQUE (habit_id, date);
 ### ユーザーデータ
 ```sql
 INSERT INTO users (username, password_hash) VALUES
-('testuser', '$2a$10$.......................'), -- 実際のハッシュ値に置き換える
-('demo', '$2a$10$...........................'); -- 実際のハッシュ値に置き換える
+('testuser', '$2a$10$XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'), -- BCryptハッシュの例 (実際の値に置き換える)
+('demo', '$2a$10$YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY'); -- BCryptハッシュの例 (実際の値に置き換える)
 ```
 
 ### 習慣データ
