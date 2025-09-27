@@ -10,13 +10,16 @@
 - **認証**: JWT (JSON Web Token)
 - **グラフ**: Chart.js
 - **ビルドツール**: Maven (バックエンド), Vite (フロントエンド)
+- **デプロイ**: Docker (本番環境はKubernetesクラスター)
 
 ## 主要機能
-- ユーザー登録・ログイン
+- ユーザー登録・ログイン 
+- プロフィール管理 
 - 習慣の作成・編集・削除
 - 習慣の進捗記録
 - 進捗の可視化（グラフ・統計）
-- カテゴリ別習慣管理
+- 週次/月次サマリー表示
+- カテゴリ別習慣管理 (ユーザー定義カテゴリ、事前定義カテゴリ)
 - 連続記録の追跡
 
 ## プロジェクト構造
@@ -81,25 +84,12 @@ GRANT ALL PRIVILEGES ON DATABASE habit_tracker TO habit_user;
 - バックエンド: JUnit 5 + Mockito
 - フロントエンド: Jest + Testing Library
 - 統合テスト: TestContainers
+- テストケース: [テストケース](docs/01_requirements/test_cases.md)
 
 ### デプロイ
-- Docker Composeを使用したコンテナ化
-- 本番環境: AWS/GCP/Azure
+- 開発環境: Docker Composeを使用したコンテナ化
+- 本番環境: Kubernetesクラスター (Longhornを使用したストレージの冗長化とバックアップを検討)
 - CI/CD: GitHub Actions
-
-## 貢献方法
-1. リポジトリをフォーク
-2. フィーチャーブランチを作成
-3. 変更をコミット
-4. プルリクエストを作成
-
-## ライセンス
-MIT License
-
-## 連絡先
-- プロジェクトリーダー: [Your Name]
-- メール: [your.email@example.com]
-- GitHub: [your-github-username]
 
 ## 更新履歴
 - v1.0.0 (2024-01-01): 初回リリース
