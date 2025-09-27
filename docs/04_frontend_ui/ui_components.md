@@ -38,6 +38,8 @@
 - **習慣情報**
   - 習慣名・説明
   - カテゴリ表示
+  - 習慣タイプ表示
+  - 目標値・単位表示
   - 目標頻度表示
 
 - **進捗グラフ**
@@ -55,6 +57,9 @@
   - 習慣名入力
   - 説明入力
   - カテゴリ選択
+  - 習慣タイプ選択（ドロップダウン）
+  - 目標値入力（習慣タイプが数値型の場合のみ表示）
+  - 単位選択（習慣タイプが数値型の場合のみ表示）
   - 目標頻度設定
 
 - **ボタン**
@@ -158,6 +163,8 @@ class HabitCardComponent {
     
     render() {
         // 習慣カードのレンダリング
+        // habit.habitType, habit.targetValue, habit.targetUnit を表示
+        // progress.numericValue を表示
     }
     
     renderProgress() {
@@ -189,14 +196,15 @@ class HabitDetailComponent {
     
     render() {
         // 習慣詳細画面のレンダリング
+        // habit.habitType, habit.targetValue, habit.targetUnit を表示
     }
     
     renderChart() {
-        // グラフのレンダリング
+        // グラフのレンダリング (習慣タイプと numeric_value に応じて調整)
     }
     
     renderProgressHistory() {
-        // 進捗履歴のレンダリング
+        // 進捗履歴のレンダリング (progress.numericValue を表示)
     }
     
     handlePeriodChange() {
@@ -219,10 +227,12 @@ class HabitFormComponent {
     
     render() {
         // 習慣フォームのレンダリング
+        // habitType, targetValue, targetUnit の入力フィールドを追加
+        // 習慣タイプに応じて目標値と単位の表示/非表示を切り替えるロジック
     }
     
     handleSubmit() {
-        // フォーム送信処理
+        // フォーム送信処理 (habitType, targetValue, targetUnit を含める)
     }
     
     handleCancel() {
@@ -230,7 +240,7 @@ class HabitFormComponent {
     }
     
     validateForm() {
-        // フォームバリデーション
+        // フォームバリデーション (habitTypeに応じたバリデーションルール)
     }
     
     resetForm() {

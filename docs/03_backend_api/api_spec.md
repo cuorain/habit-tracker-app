@@ -69,6 +69,9 @@ Authorization: Bearer <token>
       "name": "string",
       "description": "string",
       "category": "string",
+      "habitType": "string",
+      "targetValue": "number",
+      "targetUnit": "string",
       "targetFrequency": "number",
       "createdAt": "string",
       "updatedAt": "string"
@@ -85,6 +88,9 @@ Authorization: Bearer <token>
     "name": "string",
     "description": "string",
     "category": "string",
+    "habitType": "string",
+    "targetValue": "number",
+    "targetUnit": "string",
     "targetFrequency": "number"
   }
   ```
@@ -95,6 +101,9 @@ Authorization: Bearer <token>
     "name": "string",
     "description": "string",
     "category": "string",
+    "habitType": "string",
+    "targetValue": "number",
+    "targetUnit": "string",
     "targetFrequency": "number",
     "createdAt": "string",
     "updatedAt": "string"
@@ -110,6 +119,9 @@ Authorization: Bearer <token>
     "name": "string",
     "description": "string",
     "category": "string",
+    "habitType": "string",
+    "targetValue": "number",
+    "targetUnit": "string",
     "targetFrequency": "number"
   }
   ```
@@ -128,6 +140,7 @@ Authorization: Bearer <token>
   {
     "date": "string",
     "completed": "boolean",
+    "numericValue": "number",
     "notes": "string"
   }
   ```
@@ -146,6 +159,7 @@ Authorization: Bearer <token>
       "habitId": "number",
       "date": "string",
       "completed": "boolean",
+      "numericValue": "number",
       "notes": "string",
       "createdAt": "string"
     }
