@@ -2,13 +2,12 @@
   "name": "habit-tracker-frontend",
   "version": "1.0.0",
   "description": "Frontend for Habit Tracker Application",
-  "main": "src/main.ts",
+  "main": "src/main.js",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "vite build",
     "preview": "vite preview",
-    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "type-check": "tsc --noEmit"
+    "lint": "eslint . --ext js --report-unused-disable-directives --max-warnings 0"
   },
   "dependencies": {
     "chart.js": "^4.4.0",
@@ -16,16 +15,12 @@
     "date-fns": "^2.30.0"
   },
   "devDependencies": {
-    "@types/node": "^20.8.0",
-    "@typescript-eslint/eslint-plugin": "^6.7.0",
-    "@typescript-eslint/parser": "^6.7.0",
     "eslint": "^8.50.0",
-    "typescript": "^5.2.2",
     "vite": "^4.4.9"
   },
   "keywords": [
     "habit-tracker",
-    "typescript",
+    "javascript",
     "frontend"
   ],
   "author": "Habit Tracker Team",

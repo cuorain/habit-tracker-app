@@ -6,16 +6,18 @@
 ## グラフの種類
 
 ### 1. 進捗率グラフ (Progress Rate Chart)
-- **目的**: 習慣の完了率を時系列で表示
-- **データ**: 日付と完了率のペア
+- **目的**: 習慣の完了率を時系列で表示 (数値習慣の場合は目標達成率)
+- **データ**: 日付と完了率/目標達成率のペア
 - **表示形式**: 折れ線グラフ
-- **期間**: 週・月・年で切り替え可能
+- **期間**: 週・月・年で切り替え可能（ユーザーがカスタマイズ可能）
+- **色のカスタマイズ**: MVPでは不要
+- **複数習慣の重ね表示**: MVPでは不要
 
-```typescript
-interface ProgressRateData {
-    date: string;
-    completionRate: number; // 0-100%
-}
+```javascript
+// interface ProgressRateData {
+//     date: string;
+//     completionRate: number; // 0-100% or target achievement rate
+// }
 ```
 
 ### 2. 連続記録グラフ (Streak Chart)
@@ -24,12 +26,12 @@ interface ProgressRateData {
 - **表示形式**: 棒グラフ
 - **色分け**: 達成日は緑、未達成日は赤
 
-```typescript
-interface StreakData {
-    date: string;
-    streak: number;
-    completed: boolean;
-}
+```javascript
+// interface StreakData {
+//     date: string;
+//     streak: number;
+//     completed: boolean;
+// }
 ```
 
 ### 3. カテゴリ別統計 (Category Statistics)
@@ -37,106 +39,176 @@ interface StreakData {
 - **データ**: カテゴリ名と達成率のペア
 - **表示形式**: 円グラフまたはドーナツグラフ
 
-```typescript
-interface CategoryStats {
-    category: string;
-    totalHabits: number;
-    completedHabits: number;
-    completionRate: number;
-}
+```javascript
+// interface CategoryStats {
+//     category: string;
+//     totalHabits: number;
+//     completedHabits: number;
+//     completionRate: number;
+// }
 ```
 
 ### 4. 週間・月間カレンダー (Calendar View)
 - **目的**: カレンダー形式での進捗表示
-- **データ**: 日付と完了状態のペア
+- **データ**: 日付と完了状態、数値 (numeric_value) のペア
 - **表示形式**: カレンダーグリッド
 - **色分け**: 完了日は緑、未完了日はグレー
+- **各セルの表示内容**: 完了/未完了のマーク。`numericValue`タイプの場合、値が入力されていれば完了とみなして表示。
+- **インタラクション**: 特定の日の習慣をクリックすると、詳細モーダルが表示されます。モーダル内には進捗編集画面へ遷移する小さなアイコンも表示されます。
 
-```typescript
-interface CalendarData {
-    date: string;
-    completed: boolean;
-    notes?: string;
-}
+```javascript
+// interface CalendarData {
+//     date: string;
+//     completed: boolean;
+//     numericValue?: number; // 新規：数値習慣の場合
+//     notes?: string;
+// }
 ```
 
 ## データの扱い
 
 ### 1. データ取得
-```typescript
+```javascript
 class ChartService {
-    async getProgressRateData(habitId: number, period: 'week' | 'month' | 'year'): Promise<ProgressRateData[]>;
-    async getStreakData(habitId: number, period: 'week' | 'month' | 'year'): Promise<StreakData[]>;
-    async getCategoryStats(userId: number): Promise<CategoryStats[]>;
-    async getCalendarData(habitId: number, year: number, month: number): Promise<CalendarData[]>;
+    async getProgressRateData(habitId, period) {
+        // 進捗率データの取得 (habitType, numericValue を考慮)
+    }
+    
+    async getStreakData(habitId, period) {
+        // 連続記録データの取得
+    }
+    
+    async getCategoryStats(userId) {
+        // カテゴリ統計データの取得
+    }
+    
+    async getCalendarData(habitId, year, month) {
+        // カレンダーデータの取得 (numericValue を含める)
+    }
 }
 ```
 
 ### 2. データ変換
-```typescript
+```javascript
 class DataTransformer {
-    static transformProgressData(rawData: HabitProgress[]): ProgressRateData[];
-    static calculateStreak(progressData: HabitProgress[]): StreakData[];
-    static groupByCategory(habits: Habit[]): CategoryStats[];
-    static formatCalendarData(progressData: HabitProgress[]): CalendarData[];
+    static transformProgressData(rawData) {
+        // 進捗データの変換 (habitType, numericValue, targetValue を考慮)
+    }
+    
+    static calculateStreak(progressData) {
+        // 連続記録の計算 (numericValue と targetValue を考慮して completed を判断)
+    }
+    
+    static groupByCategory(habits) {
+        // カテゴリ別グループ化
+    }
+    
+    static formatCalendarData(progressData) {
+        // カレンダーデータのフォーマット (numericValue を含める)
+    }
 }
 ```
 
 ### 3. データキャッシュ
-```typescript
+```javascript
 class DataCache {
-    private cache: Map<string, any> = new Map();
-    private ttl: number = 5 * 60 * 1000; // 5分
+    constructor() {
+        this.cache = new Map();
+        this.ttl = 5 * 60 * 1000; // 5分
+    }
     
-    set(key: string, data: any): void;
-    get(key: string): any | null;
-    clear(): void;
-    isExpired(key: string): boolean;
+    set(key, data) {
+        // キャッシュにデータを保存
+    }
+    
+    get(key) {
+        // キャッシュからデータを取得
+    }
+    
+    clear() {
+        // キャッシュをクリア
+    }
+    
+    isExpired(key) {
+        // キャッシュの有効期限チェック
+    }
 }
 ```
 
 ## グラフライブラリ
 
 ### Chart.js の使用
-```typescript
+```javascript
 import Chart from 'chart.js/auto';
 import 'chartjs-adapter-date-fns';
 
 class ChartManager {
-    private charts: Map<string, Chart> = new Map();
+    constructor() {
+        this.charts = new Map();
+    }
     
-    createProgressChart(canvas: HTMLCanvasElement, data: ProgressRateData[]): Chart;
-    createStreakChart(canvas: HTMLCanvasElement, data: StreakData[]): Chart;
-    createCategoryChart(canvas: HTMLCanvasElement, data: CategoryStats[]): Chart;
-    updateChart(chartId: string, data: any): void;
-    destroyChart(chartId: string): void;
+    createProgressChart(canvas, data, habitType, targetValue) {
+        // 進捗グラフの作成 (habitType と targetValue に応じた表示)
+    }
+    
+    createStreakChart(canvas, data) {
+        // 連続記録グラフの作成
+    }
+    
+    createCategoryChart(canvas, data) {
+        // カテゴリグラフの作成
+    }
+    
+    updateChart(chartId, data) {
+        // グラフの更新
+    }
+    
+    destroyChart(chartId) {
+        // グラフの破棄
+    }
 }
 ```
 
 ### グラフ設定
-```typescript
+```javascript
 const chartConfig = {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
         legend: {
-            position: 'top' as const,
+            position: 'top',
         },
         tooltip: {
-            mode: 'index' as const,
+            mode: 'index',
             intersect: false,
+            callbacks: {
+                label: function(context) {
+                    let label = context.dataset.label || '';
+                    if (label) {
+                        label += ': ';
+                    }
+                    if (context.parsed.y !== null) {
+                        label += context.parsed.y;
+                    }
+                    // habitType, targetValue, numericValue に応じた情報追加
+                    // 表示内容：日付、目標値（数値習慣の場合）、数値（完了/未完了、数値習慣の場合）
+                    // 例: "2024-01-01: 目標 8時間, 実績 7.5時間" (NUMERIC_DURATION)
+                    // 例: "2024-01-01: 完了" (BOOLEAN)
+                    return label;
+                }
+            }
         },
     },
     scales: {
         x: {
-            type: 'time' as const,
+            type: 'time',
             time: {
-                unit: 'day' as const,
+                unit: 'day',
             },
         },
         y: {
             beginAtZero: true,
-            max: 100,
+            // habitTypeに応じてmax値を調整
         },
     },
 };
@@ -145,13 +217,23 @@ const chartConfig = {
 ## インタラクション
 
 ### 1. 期間選択
-```typescript
+```javascript
 class PeriodSelector {
-    private currentPeriod: 'week' | 'month' | 'year' = 'week';
+    constructor() {
+        this.currentPeriod = 'week'; // 'week' | 'month' | 'year'
+    }
     
-    render(): HTMLElement;
-    handlePeriodChange(period: 'week' | 'month' | 'year'): void;
-    updateCharts(): void;
+    render() {
+        // 期間選択UIのレンダリング
+    }
+    
+    handlePeriodChange(period) {
+        // 期間変更処理
+    }
+    
+    updateCharts() {
+        // グラフの更新 (habitType を ChartManager に渡す)
+    }
 }
 ```
 
@@ -161,23 +243,35 @@ class PeriodSelector {
 - ダブルクリックでのリセット
 
 ### 3. ツールチップ
-```typescript
-interface TooltipData {
-    date: string;
-    value: number;
-    label: string;
-    additionalInfo?: string;
-}
+```javascript
+// ツールチップデータの例
+const tooltipData = {
+    date: '2024-01-01',
+    value: 85, // completionRate or numericValue
+    label: '進捗率',
+    additionalInfo: '連続記録: 5日', 
+    habitType: 'BOOLEAN', // 新規
+    targetValue: null,    // 新規
+    numericValue: null    // 新規
+};
 ```
 
 ## パフォーマンス最適化
 
 ### 1. データの遅延読み込み
-```typescript
+```javascript
 class LazyDataLoader {
-    async loadDataOnDemand(habitId: number, period: string): Promise<any>;
-    preloadNextPeriod(habitId: number, currentPeriod: string): void;
-    clearUnusedData(): void;
+    async loadDataOnDemand(habitId, period, habitType) {
+        // 必要に応じてデータを読み込み (habitType を考慮)
+    }
+    
+    preloadNextPeriod(habitId, currentPeriod, habitType) {
+        // 次の期間のデータを事前読み込み (habitType を考慮)
+    }
+    
+    clearUnusedData() {
+        // 使用されていないデータをクリア
+    }
 }
 ```
 
@@ -186,23 +280,38 @@ class LazyDataLoader {
 - スクロール時の動的読み込み
 
 ### 3. メモリ管理
-```typescript
+```javascript
 class MemoryManager {
-    private maxCharts: number = 10;
+    constructor() {
+        this.maxCharts = 10;
+    }
     
-    cleanupOldCharts(): void;
-    optimizeMemoryUsage(): void;
+    cleanupOldCharts() {
+        // 古いグラフのクリーンアップ
+    }
+    
+    optimizeMemoryUsage() {
+        // メモリ使用量の最適化
+    }
 }
 ```
 
 ## エラーハンドリング
 
 ### 1. データ取得エラー
-```typescript
+```javascript
 class ChartErrorHandler {
-    handleDataLoadError(error: Error): void;
-    showErrorMessage(message: string): void;
-    retryDataLoad(): void;
+    handleDataLoadError(error) {
+        // データ読み込みエラーの処理
+    }
+    
+    showErrorMessage(message) {
+        // エラーメッセージの表示
+    }
+    
+    retryDataLoad() {
+        // データ読み込みの再試行
+    }
 }
 ```
 

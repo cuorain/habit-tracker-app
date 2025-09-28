@@ -26,7 +26,6 @@ Authorization: Bearer <token>
   ```json
   {
     "username": "string",
-    "email": "string",
     "password": "string"
   }
   ```
@@ -35,7 +34,6 @@ Authorization: Bearer <token>
   {
     "id": "number",
     "username": "string",
-    "email": "string",
     "token": "string"
   }
   ```
@@ -45,7 +43,7 @@ Authorization: Bearer <token>
 - **Request Body:**
   ```json
   {
-    "email": "string",
+    "username": "string",
     "password": "string"
   }
   ```
@@ -54,7 +52,6 @@ Authorization: Bearer <token>
   {
     "id": "number",
     "username": "string",
-    "email": "string",
     "token": "string"
   }
   ```
@@ -72,6 +69,9 @@ Authorization: Bearer <token>
       "name": "string",
       "description": "string",
       "category": "string",
+      "habitType": "string",
+      "targetValue": "number",
+      "targetUnit": "string",
       "targetFrequency": "number",
       "createdAt": "string",
       "updatedAt": "string"
@@ -88,9 +88,17 @@ Authorization: Bearer <token>
     "name": "string",
     "description": "string",
     "category": "string",
+    "habitType": "string",
+    "targetValue": "number",
+    "targetUnit": "string",
     "targetFrequency": "number"
   }
   ```
+- **バリデーション**: 
+  - `habitType`: 必須 (`BOOLEAN`, `NUMERIC_DURATION`, `NUMERIC_COUNT` のいずれか)。
+  - `habitType` が `BOOLEAN` の場合、`targetValue` と `targetUnit` は `NULL` であること。
+  - `habitType` が `NUMERIC_DURATION` または `NUMERIC_COUNT` の場合、`targetValue` と `targetUnit` は必須であり、`targetValue` は0以上の数値であること。
+  - `targetUnit`: `hours`, `minutes`, `reps`, `times` のいずれかであること（`habitType`が数値型の場合）。
 - **Response:**
   ```json
   {
@@ -98,6 +106,9 @@ Authorization: Bearer <token>
     "name": "string",
     "description": "string",
     "category": "string",
+    "habitType": "string",
+    "targetValue": "number",
+    "targetUnit": "string",
     "targetFrequency": "number",
     "createdAt": "string",
     "updatedAt": "string"
@@ -113,9 +124,17 @@ Authorization: Bearer <token>
     "name": "string",
     "description": "string",
     "category": "string",
+    "habitType": "string",
+    "targetValue": "number",
+    "targetUnit": "string",
     "targetFrequency": "number"
   }
   ```
+- **バリデーション**: 
+  - `habitType`: 必須 (`BOOLEAN`, `NUMERIC_DURATION`, `NUMERIC_COUNT` のいずれか)。
+  - `habitType` が `BOOLEAN` の場合、`targetValue` と `targetUnit` は `NULL` であること。
+  - `habitType` が `NUMERIC_DURATION` または `NUMERIC_COUNT` の場合、`targetValue` と `targetUnit` は必須であり、`targetValue` は0以上の数値であること。
+  - `targetUnit`: `hours`, `minutes`, `reps`, `times` のいずれかであること（`habitType`が数値型の場合）。
 
 #### 習慣削除
 - **DELETE** `/habits/{id}`
@@ -131,16 +150,14 @@ Authorization: Bearer <token>
   {
     "date": "string",
     "completed": "boolean",
+    "numericValue": "number",
     "notes": "string"
   }
   ```
-
-#### 進捗履歴取得
-- **GET** `/habits/{id}/progress`
-- **Headers:** `Authorization: Bearer <token>`
-- **Query Parameters:**
-  - `startDate`: 開始日 (YYYY-MM-DD)
-  - `endDate`: 終了日 (YYYY-MM-DD)
+- **バリデーション**: 
+  - `numericValue`: 
+    - 関連する習慣の `habitType` が `BOOLEAN` の場合、`numericValue` は `NULL` であること。
+    - 関連する習慣の `habitType` が `NUMERIC_DURATION` または `NUMERIC_COUNT` の場合、`numericValue` は必須であり、0以上の数値であること。
 - **Response:**
   ```json
   [
@@ -149,6 +166,7 @@ Authorization: Bearer <token>
       "habitId": "number",
       "date": "string",
       "completed": "boolean",
+      "numericValue": "number",
       "notes": "string",
       "createdAt": "string"
     }

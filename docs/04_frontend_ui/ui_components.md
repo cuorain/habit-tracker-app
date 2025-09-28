@@ -7,14 +7,14 @@
 
 ### 1. 認証画面
 - **ログイン画面**
-  - メールアドレス入力フィールド
   - パスワード入力フィールド
   - ログインボタン
   - 新規登録リンク
+- **エラー表示**: ログイン失敗時、新規登録失敗時には、具体的なエラーメッセージ（例: 「ユーザー名またはパスワードが間違っています」、「このユーザー名は既に使用されています」）をフォームの上部または該当する入力フィールドの下に赤字で表示します。
+- **パスワードリセット機能**: MVPでは提供しませんが、将来的な機能拡張として考慮します。
 
 - **新規登録画面**
   - ユーザー名入力フィールド
-  - メールアドレス入力フィールド
   - パスワード入力フィールド
   - 確認用パスワード入力フィールド
   - 登録ボタン
@@ -40,6 +40,8 @@
 - **習慣情報**
   - 習慣名・説明
   - カテゴリ表示
+  - 習慣タイプ表示
+  - 目標値・単位表示
   - 目標頻度表示
 
 - **進捗グラフ**
@@ -57,7 +59,14 @@
   - 習慣名入力
   - 説明入力
   - カテゴリ選択
+  - 習慣タイプ選択（ドロップダウン）
+  - 目標値入力（習慣タイプが数値型の場合のみ表示）: 数値入力フィールド
+  - 単位選択（習慣タイプが数値型の場合のみ表示）: ドロップダウン（選択肢: hours, minutes, reps, times）
   - 目標頻度設定
+
+- **プログレス記録のUI**: 
+  - 数値型習慣（NUMERIC_DURATION, NUMERIC_COUNT）の場合: `numericValue` は数値入力フィールドで入力します。
+  - BOOLEAN習慣の場合: `completed` フラグはチェックボックスで操作します。
 
 - **ボタン**
   - 保存ボタン
@@ -66,97 +75,205 @@
 ## 主要コンポーネント
 
 ### 1. App (メインアプリケーション)
-```typescript
+```javascript
 class App {
-    private authService: AuthService;
-    private habitService: HabitService;
-    private currentUser: User | null = null;
+    constructor() {
+        this.authService = new AuthService();
+        this.habitService = new HabitService();
+        this.currentUser = null;
+    }
     
-    init(): void;
-    render(): void;
-    handleAuth(): void;
-    handleLogout(): void;
+    init() {
+        // アプリケーション初期化
+    }
+    
+    render() {
+        // レンダリング処理
+    }
+    
+    handleAuth() {
+        // 認証処理
+    }
+    
+    handleLogout() {
+        // ログアウト処理
+    }
 }
 ```
 
 ### 2. AuthComponent (認証コンポーネント)
-```typescript
+```javascript
 class AuthComponent {
-    private mode: 'login' | 'register' = 'login';
+    constructor() {
+        this.mode = 'login'; // 'login' | 'register'
+    }
     
-    render(): HTMLElement;
-    handleLogin(): void;
-    handleRegister(): void;
-    switchMode(): void;
-    validateForm(): boolean;
+    render() {
+        // 認証画面のレンダリング
+    }
+    
+    handleLogin() {
+        // ログイン処理
+    }
+    
+    handleRegister() {
+        // 登録処理
+    }
+    
+    switchMode() {
+        // ログイン/登録モード切り替え
+    }
+    
+    validateForm() {
+        // フォームバリデーション
+    }
 }
 ```
 
 ### 3. DashboardComponent (ダッシュボード)
-```typescript
+```javascript
 class DashboardComponent {
-    private habits: Habit[] = [];
+    constructor() {
+        this.habits = [];
+    }
     
-    render(): HTMLElement;
-    loadHabits(): void;
-    renderHabitCards(): HTMLElement[];
-    handleAddHabit(): void;
-    handleHabitClick(habitId: number): void;
+    render() {
+        // ダッシュボードのレンダリング
+    }
+    
+    loadHabits() {
+        // 習慣データの読み込み
+    }
+    
+    renderHabitCards() {
+        // 習慣カードのレンダリング
+    }
+    
+    handleAddHabit() {
+        // 新規習慣追加
+    }
+    
+    handleHabitClick(habitId) {
+        // 習慣クリック処理
+    }
 }
 ```
 
 ### 4. HabitCardComponent (習慣カード)
-```typescript
+```javascript
 class HabitCardComponent {
-    private habit: Habit;
-    private progress: HabitProgress[];
+    constructor(habit, progress = []) {
+        this.habit = habit;
+        this.progress = progress;
+    }
     
-    render(): HTMLElement;
-    renderProgress(): HTMLElement;
-    handleEdit(): void;
-    handleDelete(): void;
-    handleProgressUpdate(): void;
+    render() {
+        // 習慣カードのレンダリング
+        // habit.habitType, habit.targetValue, habit.targetUnit を表示
+        // progress.numericValue を表示
+    }
+    
+    renderProgress() {
+        // 進捗表示のレンダリング
+    }
+    
+    handleEdit() {
+        // 編集処理
+    }
+    
+    handleDelete() {
+        // 削除処理
+    }
+    
+    handleProgressUpdate() {
+        // 進捗更新処理
+    }
 }
 ```
 
 ### 5. HabitDetailComponent (習慣詳細)
-```typescript
+```javascript
 class HabitDetailComponent {
-    private habit: Habit;
-    private progress: HabitProgress[];
-    private selectedPeriod: 'week' | 'month' | 'year' = 'week';
+    constructor(habit, progress = []) {
+        this.habit = habit;
+        this.progress = progress;
+        this.selectedPeriod = 'week'; // 'week' | 'month' | 'year'
+    }
     
-    render(): HTMLElement;
-    renderChart(): HTMLElement;
-    renderProgressHistory(): HTMLElement;
-    handlePeriodChange(): void;
-    handleProgressEdit(): void;
+    render() {
+        // 習慣詳細画面のレンダリング
+        // habit.habitType, habit.targetValue, habit.targetUnit を表示
+    }
+    
+    renderChart() {
+        // グラフのレンダリング (習慣タイプと numeric_value に応じて調整)
+    }
+    
+    renderProgressHistory() {
+        // 進捗履歴のレンダリング (progress.numericValue を表示)
+    }
+    
+    handlePeriodChange() {
+        // 期間変更処理
+    }
+    
+    handleProgressEdit() {
+        // 進捗編集処理
+    }
 }
 ```
 
 ### 6. HabitFormComponent (習慣フォーム)
-```typescript
+```javascript
 class HabitFormComponent {
-    private habit: Habit | null = null;
-    private isEdit: boolean = false;
+    constructor(habit = null) {
+        this.habit = habit;
+        this.isEdit = !!habit;
+    }
     
-    render(): HTMLElement;
-    handleSubmit(): void;
-    handleCancel(): void;
-    validateForm(): boolean;
-    resetForm(): void;
+    render() {
+        // 習慣フォームのレンダリング
+        // habitType, targetValue, targetUnit の入力フィールドを追加
+        // 習慣タイプに応じて目標値と単位の表示/非表示を切り替えるロジック
+    }
+    
+    handleSubmit() {
+        // フォーム送信処理 (habitType, targetValue, targetUnit を含める)
+    }
+    
+    handleCancel() {
+        // キャンセル処理
+    }
+    
+    validateForm() {
+        // フォームバリデーション (habitTypeに応じたバリデーションルール)
+    }
+    
+    resetForm() {
+        // フォームリセット
+    }
 }
 ```
 
 ### 7. ChartComponent (グラフコンポーネント)
-```typescript
+```javascript
 class ChartComponent {
-    private canvas: HTMLCanvasElement;
-    private chart: Chart;
+    constructor(canvas) {
+        this.canvas = canvas;
+        this.chart = null;
+    }
     
-    render(data: ChartData): HTMLElement;
-    updateData(data: ChartData): void;
-    destroy(): void;
+    render(data) {
+        // グラフのレンダリング
+    }
+    
+    updateData(data) {
+        // データ更新
+    }
+    
+    destroy() {
+        // グラフの破棄
+    }
 }
 ```
 

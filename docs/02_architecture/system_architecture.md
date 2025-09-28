@@ -4,16 +4,16 @@
 習慣トラッカーアプリケーションのシステムアーキテクチャを定義します。
 
 ## アーキテクチャ概要
-- **フロントエンド**: HTML/CSS/TypeScript (SPA)
+- **フロントエンド**: HTML/CSS/JavaScript (SPA)
 - **バックエンド**: Java/Spring Boot (REST API)
 - **データベース**: PostgreSQL
-- **デプロイ**: Docker
+- **デプロイ**: Docker (本番環境はKubernetesクラスター)
 
 ## システム構成図
 ```
 [ユーザー] 
     ↓ HTTP/HTTPS
-[フロントエンド (HTML/CSS/TypeScript)]
+[フロントエンド (HTML/CSS/JavaScript)]
     ↓ REST API
 [バックエンド (Java/Spring Boot)]
     ↓ JDBC
@@ -28,11 +28,12 @@
 - セキュリティ機能の充実
 - スケーラビリティ
 
-### フロントエンド: HTML/CSS/TypeScript
+### フロントエンド: HTML/CSS/JavaScript
 - 軽量で高速
 - 学習コストが低い
 - ブラウザ互換性が高い
 - デバッグが容易
+- 型安全性は不要（シンプルなアプリケーション）
 
 ### データベース: PostgreSQL
 - ACID特性の保証
@@ -46,9 +47,11 @@
 - SQLインジェクション対策
 - XSS対策
 - CSRF対策
+### データベース冗長性・バックアップ
+- 本番環境ではLonghornを使用したストレージの冗長化とバックアップを検討する。
 
 ## パフォーマンス考慮事項
 - データベースインデックス最適化
-- キャッシュ戦略
+- キャッシュ戦略: MVPではキャッシュは行わない。
 - 非同期処理
 - 接続プール管理
