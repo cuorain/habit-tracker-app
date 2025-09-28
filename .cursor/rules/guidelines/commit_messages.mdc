@@ -1,0 +1,2 @@
+# コミットメッセージに関するルール:
+- Conventional Commitsの適用 (Apply Conventional Commits): コミットメッセージはfeat:, fix:, docs:などのプレフィックスを使用し、Conventional Commitsのガイドラインに従うこと。

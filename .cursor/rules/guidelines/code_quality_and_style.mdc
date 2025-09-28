@@ -1,0 +1,5 @@
+# コード品質とスタイルに関するルール:
+- 自動フォーマットの適用 (Automatic Formatting): コード変更時には常にPrettier, ESLint (JavaScript), Google Java Format (Java) などのフォーマッターを適用し、コードスタイルの一貫性を保つこと。
+- ESLint/Linterエラーの最小化 (Minimize Linter Errors): 新規コードや変更箇所において、Linterエラーが発生しないようにすること。既存のエラーは、可能であれば同時に修正を試みること。
+- ベストプラクティスの遵守 (Adhere to Best Practices): 各言語やフレームワークの推奨されるベストプラクティスに従ったコードを生成すること。
+- DRY原則 (Don't Repeat Yourself): コードの重複を避け、再利用可能なコンポーネントや関数を積極的に使用すること。
