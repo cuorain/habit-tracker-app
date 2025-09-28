@@ -1,0 +1,59 @@
+# Compiled class files
+*.class
+
+# Log files
+*.log
+log/
+
+# Package Files
+*.jar
+*.war
+*.ear
+
+# Gradle files
+.gradle/
+/build/
+
+# Maven files
+/target/
+
+# IDE files
+.idea/
+.vscode/
+*.iml
+.project
+.classpath
+.settings/
+*.ipr
+*.iws
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Editor specific files
+*.swp
+*~
+
+# Frontend dependencies (if applicable)
+frontend/node_modules/
+frontend/dist/
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Other
+/.classpath
+/.project
+/.settings/
+/bin/
+/src/main/resources/application-*.properties
+!/src/main/resources/application.properties # デフォルトのapplication.propertiesは含める
+
+# Cursor specific
+.cursor/
+!.cursor/rules/
