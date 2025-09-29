@@ -1,2 +1,0 @@
-rootProject.name = 'habit-tracker-app'
-include('backend', 'frontend') // frontendは将来的に追加される可能性を考慮
