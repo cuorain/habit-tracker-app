@@ -57,3 +57,6 @@ frontend/dist/
 # Cursor specific
 .cursor/
 !.cursor/rules/
+
+# Backend Node.js dependencies
+backend/node_modules/

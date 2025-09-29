@@ -8,12 +8,23 @@ services:
     volumes:
       - ..:/workspaces/habit-tracker-app
       - /workspaces/habit-tracker-app/backend/node_modules
+      # Git設定をマウント
+      - ~/.gitconfig:/home/node/.gitconfig:rw
+      - ~/.git-credentials:/home/node/.git-credentials:rw
+      # Cursor設定をマウント
+      - ~/.cursor:/home/node/.cursor:ro
     ports:
       - "8080:8080"
     environment:
       - DATABASE_URL=postgresql://habit_user:password@db:5432/habit_tracker
       - JWT_SECRET=your_super_secret_key_for_jwt_signing_which_is_at_least_256_bit
       - JWT_EXPIRATION_TIME=3600000
+      - GIT_TERMINAL_PROMPT=1
+      - LANG=en_US.UTF-8
+      - LC_ALL=en_US.UTF-8
+      - LANGUAGE=en_US:en
+      - GIT_CONFIG_NOSYSTEM=1
+      - GIT_CREDENTIAL_HELPER=store
     depends_on:
       db:
         condition: service_healthy

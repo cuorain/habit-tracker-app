@@ -29,5 +29,12 @@
         }
     },
     "remoteUser": "node",
-    "updateRemoteUserUID": true
+    "updateRemoteUserUID": true,
+    "remoteEnv": {
+        "LANG": "en_US.UTF-8",
+        "LC_ALL": "en_US.UTF-8",
+        "LANGUAGE": "en_US:en",
+        "GIT_CONFIG_NOSYSTEM": "1"
+    },
+    "postCreateCommand": "chmod +x ./.devcontainer/init-config.sh ./.devcontainer/git-setup.sh && ./.devcontainer/init-config.sh && ./.devcontainer/git-setup.sh"
 }
