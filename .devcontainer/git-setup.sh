@@ -15,10 +15,6 @@ if [ -f ~/.git-credentials ]; then
   echo "Git credentials file permissions set to 600"
 fi
 
-# Git設定を表示
-echo "Current Git configuration:"
-git config --list
-
 # Git secrets関連のエイリアスを削除（もし存在すれば）
 if [ -f ~/.gitconfig ]; then
   sed -i '/secrets/d' ~/.gitconfig

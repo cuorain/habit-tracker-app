@@ -33,8 +33,5 @@ git config --global --unset-all credential.helper gcm
 git config --global --unset-all credential.helper manager
 git config --global --unset-all credential.helper secrets
 
-# Git設定を表示
-echo "Current Git configuration:"
-git config --list
 
 echo "Setup completed!"
