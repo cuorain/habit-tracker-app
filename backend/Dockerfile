@@ -6,6 +6,7 @@ RUN apt-get update && apt-get install -y \
     git \
     locales \
     git-secrets \
+    sudo \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
@@ -30,6 +31,10 @@ RUN npm install
 
 # 所有者を変更
 RUN mkdir -p /workspaces && chown -R node:node /workspaces
+
+# nodeユーザーがパスワードなしでsudoを使えるようにする
+RUN echo "node ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/node && \
+    chmod 0440 /etc/sudoers.d/node
 
 USER node
 

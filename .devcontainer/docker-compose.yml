@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   app:
     build:
@@ -28,6 +26,20 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    # コンテナ内のプロセスが終了しないようにする
+    tty: true
+    stdin_open: true
+
+  frontend:
+    build:
+      context: ..
+      dockerfile: ./frontend/Dockerfile # Assuming a frontend Dockerfile exists or will be created
+    volumes:
+      - ../frontend:/workspaces/habit-tracker-app/frontend
+      - /workspaces/habit-tracker-app/frontend/node_modules
+    ports:
+      - "5173:5173"
+    command: bash -c "npm run dev -- --host 0.0.0.0 & tail -f /dev/null"
     # コンテナ内のプロセスが終了しないようにする
     tty: true
     stdin_open: true
