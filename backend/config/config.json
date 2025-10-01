@@ -1,0 +1,23 @@
+{
+  "development": {
+    "username": "habit_user",
+    "password": "password",
+    "database": "habit_tracker",
+    "host": "db",
+    "dialect": "postgres"
+  },
+  "test": {
+    "username": "habit_user",
+    "password": "password",
+    "database": "habit_tracker_test",
+    "host": "db",
+    "dialect": "postgres"
+  },
+  "production": {
+    "username": "habit_user",
+    "password": "password",
+    "database": "habit_tracker_prod",
+    "host": "db",
+    "dialect": "postgres"
+  }
+}

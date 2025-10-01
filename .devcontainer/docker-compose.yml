@@ -1,0 +1,64 @@
+services:
+  app:
+    build:
+      context: ..
+      dockerfile: ./backend/Dockerfile
+    volumes:
+      - ..:/workspaces/habit-tracker-app
+      - /workspaces/habit-tracker-app/backend/node_modules
+      # Git設定をマウント
+      - ~/.gitconfig:/home/node/.gitconfig:rw
+      - ~/.git-credentials:/home/node/.git-credentials:rw
+      # Cursor設定をマウント
+      - ~/.cursor:/home/node/.cursor:ro
+    ports:
+      - "8080:8080"
+    environment:
+      - DATABASE_URL=postgresql://habit_user:password@db:5432/habit_tracker
+      - JWT_SECRET=your_super_secret_key_for_jwt_signing_which_is_at_least_256_bit
+      - JWT_EXPIRATION_TIME=3600000
+      - GIT_TERMINAL_PROMPT=1
+      - LANG=en_US.UTF-8
+      - LC_ALL=en_US.UTF-8
+      - LANGUAGE=en_US:en
+      - GIT_CONFIG_NOSYSTEM=1
+      - GIT_CREDENTIAL_HELPER=store
+    depends_on:
+      db:
+        condition: service_healthy
+    # コンテナ内のプロセスが終了しないようにする
+    tty: true
+    stdin_open: true
+
+  frontend:
+    build:
+      context: ..
+      dockerfile: ./frontend/Dockerfile # Assuming a frontend Dockerfile exists or will be created
+    volumes:
+      - ../frontend:/workspaces/habit-tracker-app/frontend
+      - /workspaces/habit-tracker-app/frontend/node_modules
+    ports:
+      - "5173:5173"
+    command: bash -c "npm run dev -- --host 0.0.0.0 & tail -f /dev/null"
+    # コンテナ内のプロセスが終了しないようにする
+    tty: true
+    stdin_open: true
+
+  db:
+    image: postgres:13-alpine
+    ports:
+      - "5433:5432"
+    environment:
+      - POSTGRES_DB=habit_tracker
+      - POSTGRES_USER=habit_user
+      - POSTGRES_PASSWORD=password
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U habit_user -d habit_tracker"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  db-data:

@@ -1,0 +1,53 @@
+{
+  "name": "Habit Tracker Node.js Dev Container",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "app",
+  "workspaceFolder": "/workspaces/habit-tracker-app",
+  "shutdownAction": "stopCompose",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "ms-azuretools.vscode-docker"
+      ],
+      "settings": {
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+      }
+    }
+  },
+  "forwardPorts": [8080, 5433, 5173],
+  "portsAttributes": {
+    "8080": {
+      "label": "Node.js App",
+      "onAutoForward": "notify"
+    },
+    "5173": {
+      "label": "Frontend App",
+      "onAutoForward": "notify"
+    },
+    "5433": {
+      "label": "PostgreSQL",
+      "onAutoForward": "silent"
+    }
+  },
+  "remoteUser": "node",
+  "updateRemoteUserUID": true,
+  "remoteEnv": {
+    "LANG": "en_US.UTF-8",
+    "LC_ALL": "en_US.UTF-8",
+    "LANGUAGE": "en_US:en",
+    "GIT_CONFIG_NOSYSTEM": "1"
+  },
+  "features": {
+    "ghcr.io/devcontainers/features/docker-from-docker:1": {
+      "version": "latest",
+      "moby": false,
+      "hostSocket": "/var/run/docker-host.sock", // ホストのソケットパスを明示的に指定
+      "addHostUsersToDockerGroup": true // ホストのユーザーをdockerグループに追加 (念のため)
+    }
+  },
+  // "postCreateCommand": "chmod +x ./.devcontainer/init-config.sh ./.devcontainer/git-setup.sh && ./.devcontainer/init-config.sh && ./.devcontainer/git-setup.sh && sudo usermod -aG root node"
+  "postCreateCommand": "chmod +x ./.devcontainer/init-config.sh ./.devcontainer/git-setup.sh && ./.devcontainer/init-config.sh && ./.devcontainer/git-setup.sh && sudo chmod 666 /var/run/docker-host.sock"
+}
