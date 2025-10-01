@@ -7,6 +7,7 @@ RUN apt-get update && apt-get install -y \
     locales \
     git-secrets \
     sudo \
+    lsof \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
