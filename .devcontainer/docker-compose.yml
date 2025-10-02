@@ -52,8 +52,10 @@ services:
       - POSTGRES_DB=habit_tracker
       - POSTGRES_USER=habit_user
       - POSTGRES_PASSWORD=password
+      - POSTGRES_DB_TEST=habit_tracker_test
     volumes:
       - db-data:/var/lib/postgresql/data
+      - ./.devcontainer/docker-entrypoint-initdb.d/:/docker-entrypoint-initdb.d/
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U habit_user -d habit_tracker"]
       interval: 5s
