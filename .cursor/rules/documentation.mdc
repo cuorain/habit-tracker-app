@@ -1,4 +1,10 @@
 # ドキュメンテーションに関するルール:
-- コメントとDocstringの追加 (Add Comments and Docstrings): 複雑なロジック、非自明な処理、公開APIなどには、適切なコメントやDocstring (JSDoc, JavaDocなど) を追加し、コードの理解を助けること。
-- READMEの最新化 (Keep README Updated): 主要な機能追加や技術スタックの変更があった場合、関連する情報をREADME.mdに反映すること。
-- 設計ドキュメントへの参照 (Reference Design Documents): 実装時には、関連する設計ドキュメント（例: docs/03_backend_api/api_spec.md, docs/04_frontend_ui/ui_components.mdなど）を参照し、整合性を保つこと。
+
+- コメントと Docstring の追加 (Add Comments and Docstrings):
+  - すべての主要な関数、クラス、および複雑なロジックには、その目的、入力、出力、および主要な処理フローを説明するコメントを追加すること。
+  - 特に複雑なアルゴリズムやビジネスロジックには、詳細な説明と、必要に応じて例を示すこと。
+  - コードの意図が自明でない場合、または将来の変更で誤解を招く可能性がある場合には、インラインコメントを使用すること。
+  - マジックナンバーや文字列リテラルには、定数として定義し、その定数の意味をコメントで説明すること。
+  - ファイルヘッダーには、ファイルの内容の概要を含めること。
+- README の最新化 (Keep README Updated): 主要な機能追加や技術スタックの変更があった場合、関連する情報を README.md に反映すること。
+- 設計ドキュメントへの参照 (Reference Design Documents): 実装時には、関連する設計ドキュメント（例: docs/03_backend_api/api_spec.md, docs/04_frontend_ui/ui_components.md など）を参照し、整合性を保つこと。

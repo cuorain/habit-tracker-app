@@ -1,49 +1,80 @@
-'use strict';
+/**
+ * @description Sequelize ORMを使用してデータベース接続を確立し、すべてのデータベースモデルをロードおよび関連付けを行うファイルです。
+ */
 
-const fs = require('fs');
-const path = require('path');
-const Sequelize = require('sequelize');
-const process = require('process');
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+import { Sequelize } from "sequelize";
+import process from "process";
+
+// ESM (ECMAScript Modules) 環境での __filename と __dirname のエミュレート
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// 現在のファイル名を取得
 const basename = path.basename(__filename);
-const env = process.env.NODE_ENV || 'development';
-const config = require(__dirname + '/../config/config.json')[env];
+// 環境変数を取得 (デフォルトは'development')
+const env = process.env.NODE_ENV || "development";
+
+// データベース設定ファイルをインポート
+import config from "../config/config.json" assert { type: "json" };
+const envConfig = config[env];
 const db = {};
 
 let sequelize;
-if (config.use_env_variable) {
-  sequelize = new Sequelize(process.env[config.use_env_variable], config);
+// 環境変数でデータベース接続情報が指定されている場合
+if (envConfig.use_env_variable) {
+  sequelize = new Sequelize(process.env[envConfig.use_env_variable], envConfig);
 } else {
-  sequelize = new Sequelize(config.database, config.username, config.password, config);
+  // それ以外の場合、config.jsonから直接接続情報を取得
+  sequelize = new Sequelize(
+    envConfig.database,
+    envConfig.username,
+    envConfig.password,
+    envConfig
+  );
 }
 
-fs
-  .readdirSync(__dirname)
-  .filter(file => {
-    return (
-      file.indexOf('.') !== 0 &&
-      file !== basename &&
-      file.slice(-3) === '.js' &&
-      file.indexOf('.test.js') === -1
-    );
-  })
-  .forEach(file => {
-    const model = require(path.join(__dirname, file))(sequelize, Sequelize.DataTypes);
-    db[model.name] = model;
-  });
+/**
+ * モデルファイルを非同期で読み込み、Sequelizeインスタンスにアタッチする。
+ * - 現在のディレクトリ内の .js ファイルを読み込む。
+ * - `index.js` 自身とテストファイルは除外する。
+ */
+await Promise.all(
+  fs
+    .readdirSync(__dirname)
+    .filter((file) => {
+      return (
+        file.indexOf(".") !== 0 && // ドットファイルを除外
+        file !== basename && // index.js 自身を除外
+        file.slice(-3) === ".js" && // .js ファイルのみを対象
+        file.indexOf(".test.js") === -1 // テストファイルを除外
+      );
+    })
+    .map(async (file) => {
+      // モデルファイルを動的にインポート
+      const model = (await import(path.resolve(__dirname, file))).default(
+        sequelize,
+        Sequelize.DataTypes
+      );
+      // dbオブジェクトにモデルを追加
+      db[model.name] = model;
+    })
+);
 
-Object.keys(db).forEach(modelName => {
+/**
+ * モデル間の関連付け (association) を設定する。
+ * 各モデルに `associate` メソッドが定義されていれば呼び出す。
+ */
+Object.keys(db).forEach((modelName) => {
   if (db[modelName].associate) {
     db[modelName].associate(db);
   }
 });
 
+// Sequelize インスタンスとクラスを db オブジェクトに追加してエクスポート
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 
-module.exports = db;
-
-
-
-
-
-
+export default db;
