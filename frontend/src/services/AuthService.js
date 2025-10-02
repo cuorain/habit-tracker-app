@@ -1,6 +1,6 @@
 class AuthService {
   async login(username, password) {
-    const response = await fetch("/api/auth/login", {
+    const response = await fetch("/api/v1/auth/login", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -17,7 +17,7 @@ class AuthService {
   }
 
   async register(username, password) {
-    const response = await fetch("/api/auth/register", {
+    const response = await fetch("/api/v1/auth/register", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -47,5 +47,3 @@ class AuthService {
 }
 
 export default AuthService;
-
-
