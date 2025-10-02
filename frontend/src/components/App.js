@@ -47,5 +47,3 @@ class App {
 }
 
 export { App };
-
-

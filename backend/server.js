@@ -1,9 +1,10 @@
-require("dotenv").config();
-const express = require("express");
+import "dotenv/config";
+import express from "express";
 const app = express();
 const PORT = process.env.PORT || 8080;
-const authRoutes = require("./routes/auth");
-const { sequelize } = require("./models");
+import authRoutes from "./routes/auth.js";
+import db from "./models/index.js";
+const { sequelize } = db;
 
 // Middleware
 app.use(express.json());
@@ -18,10 +19,15 @@ app.use("/api/v1/auth", authRoutes);
 sequelize
   .sync({ force: false })
   .then(() => {
-    app.listen(PORT, "0.0.0.0", () => {
-      console.log(`Server running on port ${PORT}`);
-    });
+    if (process.env.NODE_ENV !== "test") {
+      // Only listen if not in test environment
+      app.listen(PORT, "0.0.0.0", () => {
+        console.log(`Server running on port ${PORT}`);
+      });
+    }
   })
   .catch((err) => {
     console.error("Unable to connect to the database:", err);
   });
+
+export default app; // Export the app for testing
