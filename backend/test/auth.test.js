@@ -1,27 +1,44 @@
+/**
+ * @description 認証APIのエンドポイント（登録とログイン）の統合テストを定義するファイルです。
+ */
+
 import chai from "chai";
 import chaiHttp from "chai-http";
-import app from "../server.js"; // Assuming server.js exports the app
-import db from "../models/index.js";
+import app from "../server.js"; // server.js からExpressアプリをインポート
+import db from "../models/index.js"; // データベースモデルをインポート
 const { sequelize, User } = db;
-chai.should();
+chai.should(); // Chaiのshouldアサーションスタイルを有効化
 
-chai.use(chaiHttp);
+chai.use(chaiHttp); // Chaiをchai-httpプラグインで使用
 
 describe("Auth API", () => {
+  /**
+   * 全てのテストが実行される前に一度だけ実行されるフック。
+   * - データベースモデルを同期し、Userテーブルを強制的に再作成してクリーンな状態を保証する。
+   */
   before(async () => {
-    // Sync models and clear the User table before tests
     await sequelize.sync({ force: true });
   });
 
+  /**
+   * 全てのテストが完了した後に一度だけ実行されるフック。
+   * - Sequelizeデータベース接続を閉じる。
+   */
   after(async () => {
     await sequelize.close();
   });
 
+  /**
+   * 各テストケースが実行された後に実行されるフック。
+   * - Userテーブルの全データを削除して、各テストが独立して実行されるようにクリーンな状態を保つ。
+   */
   afterEach(async () => {
-    // Clear users after each test to ensure a clean state
     await User.destroy({ truncate: true });
   });
 
+  /**
+   * ユーザー登録APIエンドポイントのテストスイート
+   */
   describe("/POST api/v1/auth/register", () => {
     it("it should register a new user", (done) => {
       const user = {
@@ -68,6 +85,9 @@ describe("Auth API", () => {
     });
   });
 
+  /**
+   * ユーザーログインAPIエンドポイントのテストスイート
+   */
   describe("/POST api/v1/auth/login", () => {
     it("it should login the user", (done) => {
       const user = {
