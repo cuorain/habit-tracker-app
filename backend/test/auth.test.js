@@ -13,6 +13,10 @@ describe("Auth API", () => {
     await sequelize.sync({ force: true });
   });
 
+  after(async () => {
+    await sequelize.close();
+  });
+
   afterEach(async () => {
     // Clear users after each test to ensure a clean state
     await User.destroy({ truncate: true });
@@ -54,7 +58,10 @@ describe("Auth API", () => {
             .send(user)
             .end((err, res) => {
               res.should.have.status(409);
-              res.text.should.be.eql("Username already exists");
+              res.body.should.be.a("object");
+              res.body.should.have
+                .property("message")
+                .eql("Username already exists");
               done();
             });
         });
@@ -107,7 +114,10 @@ describe("Auth API", () => {
             .send(loginUser)
             .end((err, res) => {
               res.should.have.status(401);
-              res.text.should.be.eql("Invalid username or password");
+              res.body.should.be.a("object");
+              res.body.should.have
+                .property("message")
+                .eql("Invalid username or password");
               done();
             });
         });
@@ -124,7 +134,10 @@ describe("Auth API", () => {
         .send(user)
         .end((err, res) => {
           res.should.have.status(401);
-          res.text.should.be.eql("Invalid username or password");
+          res.body.should.be.a("object");
+          res.body.should.have
+            .property("message")
+            .eql("Invalid username or password");
           done();
         });
     });
