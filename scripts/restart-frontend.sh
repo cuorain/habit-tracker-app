@@ -16,6 +16,7 @@ fi
 
 echo "Starting frontend development server..."
 cd frontend
-npm run dev
+npm run dev &
+
 
 

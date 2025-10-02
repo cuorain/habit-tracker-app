@@ -14,4 +14,4 @@ fi
 
 echo "Starting backend development server with nodemon..."
 cd backend
-npm run dev
+npm run dev &
