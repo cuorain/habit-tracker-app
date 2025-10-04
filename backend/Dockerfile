@@ -1,7 +1,7 @@
 ### Description: Habit Tracker Backendアプリケーション用のDockerイメージを構築するためのDockerfileです。
 
 # ベースイメージとしてNode.js 18を使用
-FROM node:18
+FROM node:22
 
 # 必要なシステムパッケージのインストール
 # curl: ネットワークリクエストのため
