@@ -1,0 +1,42 @@
+### Description: Habit Tracker Backendアプリケーションを本番Kubernetes環境にデプロイするための最適化されたDockerイメージを構築するDockerfileです。
+
+
+# --- Builder Stage ---
+# 依存関係をインストールし、アプリケーションをビルドするためのステージ
+FROM node:22-slim AS builder
+
+# 作業ディレクトリを設定
+WORKDIR /app
+
+# package.jsonとpackage-lock.jsonをコピーし、依存関係をインストール
+# このステップは、package.jsonが変更されない限りDockerのキャッシュを活用します
+COPY package*.json ./
+# 本番環境の依存関係のみをインストール
+RUN npm ci --omit=dev 
+
+# アプリケーションのソースコードをコピー
+COPY . .
+
+# --- Production Stage ---
+# 軽量なベースイメージを使用し、ビルドされたアプリケーションのみをコピーするステージ
+FROM node:22-alpine
+
+# 作業ディレクトリを設定
+WORKDIR /app
+
+# Builderステージから本番環境の依存関係とアプリケーションコードをコピー
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app ./
+# 本番環境であることを指定
+ENV NODE_ENV=production
+
+# アプリケーションがリッスンするポートを公開
+EXPOSE 8080
+
+# 非rootユーザーとして実行
+# Node.js公式イメージには'node'ユーザーが用意されています
+USER node
+
+# コンテナ起動時に実行されるコマンド
+# 本番サーバーを起動します
+CMD ["npm", "start"]
