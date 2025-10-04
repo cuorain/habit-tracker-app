@@ -2,21 +2,18 @@
  * @description 認証APIのエンドポイント（登録とログイン）の統合テストを定義するファイルです。
  */
 
-import chai from "chai";
-import chaiHttp from "chai-http";
-import app from "../server.js"; // server.js からExpressアプリをインポート
-import db from "../models/index.js"; // データベースモデルをインポート
-const { sequelize, User } = db;
-chai.should(); // Chaiのshouldアサーションスタイルを有効化
+import request from "supertest";
+import app from "../../backend/server.js";
+import db from "../../backend/models/index.js";
 
-chai.use(chaiHttp); // Chaiをchai-httpプラグインで使用
+const { sequelize, User } = db;
 
 describe("Auth API", () => {
   /**
    * 全てのテストが実行される前に一度だけ実行されるフック。
    * - データベースモデルを同期し、Userテーブルを強制的に再作成してクリーンな状態を保証する。
    */
-  before(async () => {
+  beforeAll(async () => {
     await sequelize.sync({ force: true });
   });
 
@@ -24,7 +21,7 @@ describe("Auth API", () => {
    * 全てのテストが完了した後に一度だけ実行されるフック。
    * - Sequelizeデータベース接続を閉じる。
    */
-  after(async () => {
+  afterAll(async () => {
     await sequelize.close();
   });
 
@@ -40,48 +37,43 @@ describe("Auth API", () => {
    * ユーザー登録APIエンドポイントのテストスイート
    */
   describe("/POST api/v1/auth/register", () => {
-    it("it should register a new user", (done) => {
+    it("it should register a new user", async () => {
       const user = {
         username: "testuser",
         password: "testpassword",
       };
-      chai
-        .request(app)
+
+      const response = await request(app)
         .post("/api/v1/auth/register")
-        .send(user)
-        .end((err, res) => {
-          res.should.have.status(201);
-          res.body.should.be.a("object");
-          res.body.should.have.property("id");
-          res.body.should.have.property("username").eql("testuser");
-          res.body.should.have.property("token");
-          done();
-        });
+        .send(user);
+
+      expect(response.status).toBe(201);
+      expect(response.body).toBeInstanceOf(Object);
+      expect(response.body).toHaveProperty("id");
+      expect(response.body).toHaveProperty("username", "testuser");
+      expect(response.body).toHaveProperty("token");
     });
 
-    it("it should NOT register a user with existing username", (done) => {
+    it("it should NOT register a user with existing username", async () => {
       const user = {
         username: "testuser",
         password: "testpassword",
       };
-      chai
-        .request(app)
+
+      // 最初のユーザー登録
+      await request(app).post("/api/v1/auth/register").send(user);
+
+      // 同じユーザー名で再度登録を試みる
+      const response = await request(app)
         .post("/api/v1/auth/register")
-        .send(user)
-        .end((err, res) => {
-          chai
-            .request(app)
-            .post("/api/v1/auth/register")
-            .send(user)
-            .end((err, res) => {
-              res.should.have.status(409);
-              res.body.should.be.a("object");
-              res.body.should.have
-                .property("message")
-                .eql("Username already exists");
-              done();
-            });
-        });
+        .send(user);
+
+      expect(response.status).toBe(409);
+      expect(response.body).toBeInstanceOf(Object);
+      expect(response.body).toHaveProperty(
+        "message",
+        "Username already exists"
+      );
     });
   });
 
@@ -89,77 +81,67 @@ describe("Auth API", () => {
    * ユーザーログインAPIエンドポイントのテストスイート
    */
   describe("/POST api/v1/auth/login", () => {
-    it("it should login the user", (done) => {
+    it("it should login the user", async () => {
       const user = {
         username: "loginuser",
         password: "loginpassword",
       };
-      chai
-        .request(app)
-        .post("/api/v1/auth/register")
-        .send(user)
-        .end((err, res) => {
-          chai
-            .request(app)
-            .post("/api/v1/auth/login")
-            .send(user)
-            .end((err, res) => {
-              res.should.have.status(200);
-              res.body.should.be.a("object");
-              res.body.should.have.property("id");
-              res.body.should.have.property("username").eql("loginuser");
-              res.body.should.have.property("token");
-              done();
-            });
-        });
+
+      // ユーザー登録
+      await request(app).post("/api/v1/auth/register").send(user);
+
+      // ログイン
+      const response = await request(app).post("/api/v1/auth/login").send(user);
+
+      expect(response.status).toBe(200);
+      expect(response.body).toBeInstanceOf(Object);
+      expect(response.body).toHaveProperty("id");
+      expect(response.body).toHaveProperty("username", "loginuser");
+      expect(response.body).toHaveProperty("token");
     });
 
-    it("it should NOT login with incorrect password", (done) => {
+    it("it should NOT login with incorrect password", async () => {
       const user = {
         username: "wrongpassuser",
         password: "correctpassword",
       };
-      chai
-        .request(app)
-        .post("/api/v1/auth/register")
-        .send(user)
-        .end((err, res) => {
-          const loginUser = {
-            username: "wrongpassuser",
-            password: "wrongpassword",
-          };
-          chai
-            .request(app)
-            .post("/api/v1/auth/login")
-            .send(loginUser)
-            .end((err, res) => {
-              res.should.have.status(401);
-              res.body.should.be.a("object");
-              res.body.should.have
-                .property("message")
-                .eql("Invalid username or password");
-              done();
-            });
-        });
+
+      // ユーザー登録
+      await request(app).post("/api/v1/auth/register").send(user);
+
+      const loginUser = {
+        username: "wrongpassuser",
+        password: "wrongpassword",
+      };
+
+      // 間違ったパスワードでログイン
+      const response = await request(app)
+        .post("/api/v1/auth/login")
+        .send(loginUser);
+
+      expect(response.status).toBe(401);
+      expect(response.body).toBeInstanceOf(Object);
+      expect(response.body).toHaveProperty(
+        "message",
+        "Invalid username or password"
+      );
     });
 
-    it("it should NOT login with non-existent username", (done) => {
+    it("it should NOT login with non-existent username", async () => {
       const user = {
         username: "nonexistentuser",
         password: "somepassword",
       };
-      chai
-        .request(app)
-        .post("/api/v1/auth/login")
-        .send(user)
-        .end((err, res) => {
-          res.should.have.status(401);
-          res.body.should.be.a("object");
-          res.body.should.have
-            .property("message")
-            .eql("Invalid username or password");
-          done();
-        });
+
+      // 存在しないユーザーでログイン
+      const response = await request(app).post("/api/v1/auth/login").send(user);
+
+      expect(response.status).toBe(401);
+      expect(response.body).toBeInstanceOf(Object);
+      expect(response.body).toHaveProperty(
+        "message",
+        "Invalid username or password"
+      );
     });
   });
 });
