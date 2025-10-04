@@ -16,7 +16,7 @@
   "production": {
     "username": "habit_user",
     "password": "password",
-    "database": "habit_tracker_prod",
+    "database": "habit_tracker",
     "host": "db",
     "dialect": "postgres"
   }
