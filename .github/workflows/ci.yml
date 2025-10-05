@@ -47,7 +47,7 @@ jobs:
       - name: Run tests
         env:
           NODE_ENV: test
-          DATABASE_URL: postgres://habit_user:password@postgres:5432/habit_tracker_test
+          DATABASE_URL: postgres://habit_user:password@localhost:5432/habit_tracker_test
         run: cd backend && npm test
 
   build-and-push-docker:

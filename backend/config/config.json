@@ -7,6 +7,7 @@
     "dialect": "postgres"
   },
   "test": {
+    "use_env_variable": "DATABASE_URL",
     "username": "habit_user",
     "password": "password",
     "database": "habit_tracker_test",
