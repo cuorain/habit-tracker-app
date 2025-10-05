@@ -48,6 +48,8 @@ jobs:
         env:
           NODE_ENV: test
           DATABASE_URL: postgres://habit_user:password@localhost:5432/habit_tracker_test
+          JWT_SECRET: test_secret
+          JWT_EXPIRATION_TIME: 36000
         run: cd backend && npm test
 
   build-and-push-docker:
