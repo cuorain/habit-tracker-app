@@ -11,31 +11,44 @@ on:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:13
+        env:
+          POSTGRES_DB: habit_tracker_test
+          POSTGRES_USER: habit_user
+          POSTGRES_PASSWORD: password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: "22"
 
-      - name: Install Frontend Dependencies
-        run: npm install
-        working-directory: frontend
+      - name: Install dependencies
+        run: cd backend && npm ci
 
-      - name: Build Frontend
-        run: npm run build
-        working-directory: frontend
+      - name: Wait for PostgreSQL to be ready
+        run: |
+          while ! pg_isready -h localhost -p 5432 -U habit_user; do
+            echo "Waiting for PostgreSQL..."
+            sleep 2
+          done
 
-      - name: Install Backend Dependencies
-        run: npm install
-        working-directory: backend
-
-      - name: Test Backend
-        run: npm run test
-        working-directory: backend
+      - name: Run tests
+        env:
+          NODE_ENV: test
+          DATABASE_URL: postgres://habit_user:password@localhost:5432/habit_tracker_test
+        run: cd backend && npm test
 
   build-and-push-docker:
     needs: build-and-test
