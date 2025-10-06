@@ -52,10 +52,34 @@ jobs:
           JWT_EXPIRATION_TIME: 36000
         run: cd backend && npm test
 
+  build-docker-images-pr-validation:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' && github.base_ref == 'refs/heads/main'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build Backend Docker image (PR validation)
+        uses: docker/build-push-action@v5
+        with:
+          context: ./backend
+          file: ./backend/Dockerfile.prod
+          push: false # Only build, do not push on PR
+          tags: ghcr.io/${{ github.repository }}/backend:${{ github.sha }}
+
+      - name: Build Frontend Docker image (PR validation)
+        uses: docker/build-push-action@v5
+        with:
+          context: ./frontend
+          file: ./frontend/Dockerfile.prod
+          push: false # Only build, do not push on PR
+          tags: ghcr.io/${{ github.repository }}/frontend:${{ github.sha }}
+
   build-and-push-docker:
     needs: build-and-test
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main' # この行を追加
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     permissions:
       contents: read
       packages: write
