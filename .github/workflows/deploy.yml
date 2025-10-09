@@ -38,3 +38,53 @@ jobs:
           file: ./frontend/Dockerfile.prod
           push: true
           tags: ghcr.io/${{ github.repository }}/frontend:${{ github.ref_name }}
+
+  create-pr-updating-k8s-manifests:
+    needs: build-and-push-docker
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      actions: write # GitHub Appトークンを生成するために必要
+    steps:
+      - name: Generate GitHub App Token
+        id: generate_token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.K8S_APP_ID }}
+          private-key: ${{ secrets.K8S_APP_PRIVATE_KEY }}
+          repositories: "cuorain/home-lab-apps"
+
+      - name: Checkout Kubernetes Manifests Repository
+        uses: actions/checkout@v4
+        with:
+          repository: "cuorain/home-lab-apps"
+          ref: "main"
+          token: ${{ steps.generate_token.outputs.token }}
+
+      - name: Set up Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Update image tag in Kubernetes manifests
+        run: |
+          VERSION_TAG=${{ github.ref_name }}
+          BACKEND_IMAGE_PREFIX='ghcr.io/${{ github.repository }}/backend:'
+          FRONTEND_IMAGE_PREFIX='ghcr.io/${{ github.repository }}/frontend:'
+
+          sed -i "s|image: ${BACKEND_IMAGE_PREFIX}.*|image: ${BACKEND_IMAGE_PREFIX}${VERSION_TAG}|g" k8s/backend-deployment.yaml
+          sed -i "s|image: ${FRONTEND_IMAGE_PREFIX}.*|image: ${FRONTEND_IMAGE_PREFIX}${VERSION_TAG}|g" k8s/frontend-deployment.yaml
+
+          git diff --quiet || git add .
+
+      - name: Create Pull Request
+        id: create_pr
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ steps.generate_token.outputs.token }}
+          commit-message: "chore: Update Docker image tags to ${VERSION_TAG}"
+          title: "chore: Update Docker image tags to ${VERSION_TAG}"
+          body: "Bumps Docker image tags to ${{ github.ref_name }}"
+          branch: "update-image-tags-${{ github.ref_name }}"
+          base: "main"
