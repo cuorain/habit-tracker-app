@@ -53,7 +53,9 @@ jobs:
         with:
           app-id: ${{ secrets.K8S_APP_ID }}
           private-key: ${{ secrets.K8S_APP_PRIVATE_KEY }}
-          repositories: "cuorain/home-lab-apps"
+          owner: ${{ github.repository_owner }}
+          repositories: |
+            home-lab-apps
 
       - name: Checkout Kubernetes Manifests Repository
         uses: actions/checkout@v4
