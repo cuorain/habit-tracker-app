@@ -18,7 +18,7 @@ const basename = path.basename(__filename);
 const env = process.env.NODE_ENV || "development";
 
 // データベース設定ファイルをインポート
-import config from "../config/config.json" assert { type: "json" };
+import config from "../config/config.json" with { type: "json" };
 const envConfig = config[env];
 const db = {};
 
