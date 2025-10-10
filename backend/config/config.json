@@ -1,7 +1,7 @@
 {
   "development": {
     "username": "habit_user",
-    "password": "password",
+    "use_env_variable": "DATABASE_URL",
     "database": "habit_tracker",
     "host": "db",
     "dialect": "postgres"
@@ -9,14 +9,13 @@
   "test": {
     "use_env_variable": "DATABASE_URL",
     "username": "habit_user",
-    "password": "password",
     "database": "habit_tracker_test",
     "host": "db",
     "dialect": "postgres"
   },
   "production": {
     "username": "habit_user",
-    "password": "password",
+    "use_env_variable": "DATABASE_URL",
     "database": "habit_tracker",
     "host": "postgres-service",
     "dialect": "postgres"

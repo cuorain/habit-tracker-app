@@ -23,11 +23,11 @@ const envConfig = config[env];
 const db = {};
 
 let sequelize;
-// 環境変数でデータベース接続情報が指定されている場合
-if (envConfig.use_env_variable) {
+// 環境変数でデータベース接続情報が指定されている、かつusernameまたはpasswordがconfig.jsonに明示的に定義されていない場合
+if (envConfig.use_env_variable && (!envConfig.username || !envConfig.password)) {
   sequelize = new Sequelize(process.env[envConfig.use_env_variable], envConfig);
 } else {
-  // それ以外の場合、config.jsonから直接接続情報を取得
+  // それ以外の場合（例: 'test'環境でusername/passwordがconfigにまだ残っている場合、またはuse_env_variableが設定されていない場合）
   sequelize = new Sequelize(
     envConfig.database,
     envConfig.username,
