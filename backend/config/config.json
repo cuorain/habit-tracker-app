@@ -18,7 +18,7 @@
     "username": "habit_user",
     "password": "password",
     "database": "habit_tracker",
-    "host": "db",
+    "host": "postgres-service",
     "dialect": "postgres"
   }
 }
