@@ -83,8 +83,8 @@ jobs:
         uses: peter-evans/create-pull-request@v5
         with:
           token: ${{ steps.generate_token.outputs.token }}
-          commit-message: "chore: Update Docker image tags to ${VERSION_TAG}"
-          title: "chore: Update Docker image tags to ${VERSION_TAG}"
+          commit-message: "chore: Update Docker image tags to ${{ github.ref_name }}"
+          title: "chore: Update Docker image tags to ${{ github.ref_name }}"
           body: "Bumps Docker image tags to ${{ github.ref_name }}"
           branch: "update-image-tags-${{ github.ref_name }}"
           base: "main"
