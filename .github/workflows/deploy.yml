@@ -75,7 +75,8 @@ jobs:
 
           sed -i "/- name: backend/{n;s/newTag: .*/newTag: ${VERSION_TAG}/;}" applications/habit-tracker/backend/overlays/production/kustomization.yaml
           sed -i "/- name: frontend/{n;s/newTag: .*/newTag: ${VERSION_TAG}/;}" applications/habit-tracker/frontend/overlays/production/kustomization.yaml
-          
+          cat applications/habit-tracker/backend/overlays/production/kustomization.yaml
+          cat applications/habit-tracker/frontend/overlays/production/kustomization.yaml
           git diff --quiet || git add .
 
       - name: Create Pull Request
