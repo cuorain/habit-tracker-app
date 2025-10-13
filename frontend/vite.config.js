@@ -1,15 +1,19 @@
 import { defineConfig } from "vite";
+import path from "path";
 
+// 現在のファイルのディレクトリ名を取得
+const __dirname = path.resolve();
 export default defineConfig({
-  root: "src", // <-- この行を追加
   server: {
     port: 5173,
     host: true,
   },
-  build: {
-    // 明示的にビルド出力先を指定
-    outDir: "../dist",
-    emptyOutDir: true
+  resolve: {
+    // エイリアスの設定: @ を src ディレクトリにマッピング
+    alias: {
+      "@": path.resolve(__dirname, "./src"),
+    },
+    // ファイル拡張子を省略したい場合に追加
+    // extensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json', '.vue'],
   },
-  base: "/",
 });
