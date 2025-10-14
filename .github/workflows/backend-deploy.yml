@@ -1,12 +1,12 @@
-name: Deploy Docker Images
+name: Deploy Backend Docker Image
 
 on:
   push:
     tags:
-      - "v[0-9]+.[0-9]+.[0-9]+"
+      - "backend-v[0-9]+.[0-9]+.[0-9]+"
 
 jobs:
-  build-and-push-docker:
+  build-and-push-backend-docker:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -31,16 +31,8 @@ jobs:
           push: true
           tags: ghcr.io/${{ github.repository }}/backend:${{ github.ref_name }}
 
-      - name: Build and Push Frontend Docker image
-        uses: docker/build-push-action@v5
-        with:
-          context: ./frontend
-          file: ./frontend/Dockerfile.prod
-          push: true
-          tags: ghcr.io/${{ github.repository }}/frontend:${{ github.ref_name }}
-
   create-pr-updating-k8s-manifests:
-    needs: build-and-push-docker
+    needs: build-and-push-backend-docker
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -74,8 +66,7 @@ jobs:
           VERSION_TAG=${{ github.ref_name }}
 
           sed -i "s/newTag: .*/newTag: ${VERSION_TAG}/" applications/habit-tracker/backend/overlays/production/kustomization.yaml
-          sed -i "s/newTag: .*/newTag: ${VERSION_TAG}/" applications/habit-tracker/frontend/overlays/production/kustomization.yaml
-          
+
           git diff --quiet || git add .
 
       - name: Create Pull Request
@@ -83,8 +74,8 @@ jobs:
         uses: peter-evans/create-pull-request@v5
         with:
           token: ${{ steps.generate_token.outputs.token }}
-          commit-message: "chore: Update Docker image tags to ${{ github.ref_name }}"
-          title: "chore: Update Docker image tags to ${{ github.ref_name }}"
-          body: "Bumps Docker image tags to ${{ github.ref_name }}"
-          branch: "update-image-tags-${{ github.ref_name }}"
+          commit-message: "chore: Update Backend Docker image tags to ${{ github.ref_name }}"
+          title: "chore: Update Backend Docker image tags to ${{ github.ref_name }}"
+          body: "Bumps Backend Docker image tags to ${{ github.ref_name }}"
+          branch: "update-backend-image-tags-${{ github.ref_name }}"
           base: "main"
