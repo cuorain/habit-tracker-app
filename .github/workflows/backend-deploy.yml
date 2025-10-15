@@ -6,7 +6,7 @@ on:
       - "backend-v[0-9]+.[0-9]+.[0-9]+"
 
 env:
-  VERSION_TAG: ${{ github.ref_name#`backend-` }}
+  VERSION_TAG: ${{ replace(github.ref_name, 'backend-', '') }}
 
 jobs:
   build-and-push-backend-docker:
