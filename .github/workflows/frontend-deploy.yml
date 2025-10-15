@@ -30,6 +30,8 @@ jobs:
           file: ./frontend/Dockerfile.prod
           push: true
           tags: ghcr.io/${{ github.repository }}/frontend:${{ github.ref_name }}
+          build-args: |
+            VITE_API_URL=${{ secrets.VITE_API_URL }}
 
   create-pr-updating-k8s-manifests:
     needs: build-and-push-frontend-docker

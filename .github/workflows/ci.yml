@@ -74,3 +74,5 @@ jobs:
           file: ./frontend/Dockerfile.prod
           push: false # Only build, do not push on PR
           tags: ghcr.io/${{ github.repository }}/frontend:${{ github.sha }}
+          build-args: |
+            VITE_API_URL="http://localhost:8080"
