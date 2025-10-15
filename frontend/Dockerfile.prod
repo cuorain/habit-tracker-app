@@ -11,6 +11,10 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm ci
 
+# バックエンドAPIエンドポイントを環境変数に設定
+ARG VITE_API_URL
+ENV VITE_API_URL=${VITE_API_URL}
+
 # アプリケーションのソースコードをコピー
 COPY . .
 
