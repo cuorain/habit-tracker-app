@@ -2,15 +2,18 @@
 
 ## 概要
 習慣トラッカーアプリケーションのフロントエンドUIコンポーネント設計を定義します。
+現在のUIは「スポーティ」なデザインテイストを取り入れており、モチベーションを高める赤、オレンジ、黄色を基調とした鮮やかなテーマカラーを使用しています。
 
 ## 画面構成
 
 ### 1. 認証画面
+- **デザイン**: ダークテーマを基調とし、中央に配置されたカード型のフォーム、太字の見出し、グラデーションのピル型ボタンが特徴です。ヘッダーとフッターはアプリケーション全体で常時表示されます。
 - **ログイン画面**
+  - ユーザー名入力フィールド
   - パスワード入力フィールド
   - ログインボタン
   - 新規登録リンク
-- **エラー表示**: ログイン失敗時、新規登録失敗時には、具体的なエラーメッセージ（例: 「ユーザー名またはパスワードが間違っています」、「このユーザー名は既に使用されています」）をフォームの上部または該当する入力フィールドの下に赤字で表示します。
+- **エラー表示**: ログイン失敗時、新規登録失敗時には、具体的なエラーメッセージ（例: 「無効なユーザー名またはパスワードです」、「ユーザー名は既に使用されています」）をフォームの上部に赤字で表示します。
 - **パスワードリセット機能**: MVPでは提供しませんが、将来的な機能拡張として考慮します。
 
 - **新規登録画面**
@@ -22,7 +25,7 @@
 
 ### 2. ダッシュボード画面
 - **ヘッダー**
-  - アプリケーションロゴ
+  - アプリケーションロゴ（強調された太字・大文字デザイン）
   - ユーザー名表示
   - ログアウトボタン
 
@@ -78,25 +81,29 @@
 ```javascript
 class App {
     constructor() {
+        // アプリケーションの初期化とルート要素の設定
         this.authService = new AuthService();
-        this.habitService = new HabitService();
-        this.currentUser = null;
+        // this.habitService = new HabitService(); // ダッシュボード実装時に追加
+        // this.currentUser = null; // 認証情報
     }
     
     init() {
-        // アプリケーション初期化
+        // アプリケーション初期化処理。認証状態に応じてメインコンテンツをレンダリングします。
+        // ヘッダーとフッターはAppコンポーネントの外部（index.html）で管理されます。
     }
     
     render() {
-        // レンダリング処理
+        // 認証状態に基づき、AuthComponentまたはDashboardComponentを#app-contentにレンダリングします。
     }
     
-    handleAuth() {
-        // 認証処理
+    // handleAuth()は削除またはApp内部でハンドリング
+    
+    handleAuthSuccess() {
+        // 認証成功時の処理。アプリケーションを再レンダリングします。
     }
     
     handleLogout() {
-        // ログアウト処理
+        // ログアウト処理。AuthServiceを呼び出し、アプリケーションを再レンダリングします。
     }
 }
 ```
@@ -104,28 +111,32 @@ class App {
 ### 2. AuthComponent (認証コンポーネント)
 ```javascript
 class AuthComponent {
-    constructor() {
+    constructor(onAuthSuccess) {
+        this.authService = new AuthService();
+        this.onAuthSuccess = onAuthSuccess;
         this.mode = 'login'; // 'login' | 'register'
+        // UI要素（コンテナ、エラーメッセージ表示など）
     }
     
     render() {
-        // 認証画面のレンダリング
+        // 認証画面（ログイン/登録フォーム）をレンダリングします。
+        // スポーティなデザインテーマ（ダーク背景、太字見出し、グラデーションボタン）が適用されます。
     }
     
-    handleLogin() {
-        // ログイン処理
+    handleSubmit(event) {
+        // フォーム送信処理。ユーザー名とパスワードを使用し、AuthServiceを呼び出します。
     }
     
-    handleRegister() {
-        // 登録処理
+    switchMode(event) {
+        // ログイン/登録モード切り替え処理。
     }
     
-    switchMode() {
-        // ログイン/登録モード切り替え
+    validateForm(username, password, confirmPassword) {
+        // フォームバリデーション。パスワードの一致などを確認します。
     }
     
-    validateForm() {
-        // フォームバリデーション
+    showError(message) {
+        // エラーメッセージを表示します。
     }
 }
 ```
@@ -282,15 +293,12 @@ class ChartComponent {
 ### 1. カラーパレット
 ```css
 :root {
-    --primary-color: #3498db;
-    --secondary-color: #2c3e50;
-    --success-color: #27ae60;
-    --warning-color: #f39c12;
-    --danger-color: #e74c3c;
-    --light-color: #ecf0f1;
-    --dark-color: #34495e;
-    --white: #ffffff;
-    --gray: #95a5a6;
+    --color-primary: #FF4500; /* オレンジレッド */
+    --color-secondary: #FF8C00; /* ダークオレンジ */
+    --color-accent: #FFD700; /* ゴールド */
+    --color-dark: #212121;
+    --color-light: #F5F5F5;
+    --color-gray: #B0BEC5;
 }
 ```
 
@@ -319,6 +327,10 @@ class ChartComponent {
     --spacing-2xl: 3rem;
 }
 ```
+
+### 4. 主要UI要素のスタイル
+認証画面のスタイルは、専用の`.auth-mode`クラスと`.auth-card`、`.auth-title`、`.btn-gradient`などのクラスで定義されています。
+ヘッダーはよりダークな背景色、強調された影、スポーティなアクセントライン（`border-bottom`）、そして太字・大文字のロゴ（`h1`）で構成されています。
 
 ## レスポンシブデザイン
 

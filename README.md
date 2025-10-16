@@ -61,6 +61,12 @@ npm install
 npm run dev
 ```
 
+### フロントエンドテストの実行
+```bash
+cd frontend
+npm test
+```
+
 ### データベースセットアップ
 ```sql
 CREATE DATABASE habit_tracker;
@@ -82,7 +88,7 @@ GRANT ALL PRIVILEGES ON DATABASE habit_tracker TO habit_user;
 
 ### テスト
 - バックエンド: JUnit 5 + Mockito
-- フロントエンド: Jest + Testing Library
+- フロントエンド: Jest (単体テスト)
 - 統合テスト: TestContainers
 - テストケース: [テストケース](docs/01_requirements/test_cases.md)
 
@@ -92,6 +98,11 @@ GRANT ALL PRIVILEGES ON DATABASE habit_tracker TO habit_user;
 - CI/CD: GitHub Actions
 
 ## 更新履歴
+- v1.0.1 (2025-10-16): 
+  - UIデザインの全面刷新（スポーティなテーマ、テーマカラーの変更、ヘッダーの品質向上）
+  - 認証フローの安定化とユーザー名認証への変更
+  - フロントエンドにJestとBabelを導入し、`AuthService`, `AuthComponent`, `App`の単体テストを追加
+  - エラーメッセージの日本語化
 - v1.0.0 (2024-01-01): 初回リリース
   - 基本的な習慣管理機能
   - 進捗可視化機能
