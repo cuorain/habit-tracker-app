@@ -25,7 +25,7 @@ class AuthService {
   }
 
   async register(username, password) {
-    const response = await await fetch(
+    const response = await fetch(
       `${this.apiUrl}/api/v1/auth/register`,
       {
         method: "POST",
