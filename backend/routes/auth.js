@@ -25,7 +25,7 @@ router.post("/register", async (req, res) => {
     // ユーザー名が既に存在するか確認
     let user = await User.findOne({ where: { username } });
     if (user) {
-      return res.status(409).json({ message: "Username already exists" });
+      return res.status(409).json({ message: "ユーザー名は既に使用されています。" });
     }
 
     // パスワードをハッシュ化
@@ -49,7 +49,7 @@ router.post("/register", async (req, res) => {
     res.status(201).json({ id: user.id, username: user.username, token });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Server error" }); // JSON形式でエラーを返す
+    res.status(500).json({ message: "サーバーエラーが発生しました。" }); // JSON形式でエラーを返す
   }
 });
 
@@ -69,13 +69,13 @@ router.post("/login", async (req, res) => {
     // ユーザー名を検索
     const user = await User.findOne({ where: { username } });
     if (!user) {
-      return res.status(401).json({ message: "Invalid username or password" });
+      return res.status(401).json({ message: "無効なユーザー名またはパスワードです。" });
     }
 
     // 提供されたパスワードと保存されているハッシュを比較
     const isMatch = await bcrypt.compare(password, user.passwordHash);
     if (!isMatch) {
-      return res.status(401).json({ message: "Invalid username or password" });
+      return res.status(401).json({ message: "無効なユーザー名またはパスワードです。" });
     }
 
     // JWTトークンを生成
@@ -89,7 +89,7 @@ router.post("/login", async (req, res) => {
     res.status(200).json({ id: user.id, username: user.username, token });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Server error" }); // JSON形式でエラーを返す
+    res.status(500).json({ message: "サーバーエラーが発生しました。" }); // JSON形式でエラーを返す
   }
 });
 

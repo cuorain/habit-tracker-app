@@ -15,7 +15,7 @@ class AuthService {
       localStorage.setItem("token", data.token);
       return data;
     } else {
-      throw new Error(data.message || "Login failed");
+      throw new Error(data.message || "ログインに失敗しました。");
     }
   }
 
@@ -35,7 +35,7 @@ class AuthService {
       localStorage.setItem("token", data.token);
       return data;
     } else {
-      throw new Error(data.message || "Registration failed");
+      throw new Error(data.message || "登録に失敗しました。");
     }
   }
 
