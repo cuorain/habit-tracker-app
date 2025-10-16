@@ -7,24 +7,24 @@
     <link rel="stylesheet" href="./src/styles.css" />
   </head>
   <body>
-    <div id="app">
-      <header class="header">
-        <h1>Habit Tracker</h1>
-        <nav class="nav">
-          <!-- Authentication buttons will be handled by JavaScript -->
-        </nav>
-      </header>
+    <header class="header">
+      <h1>Habit Tracker</h1>
+      <nav class="nav">
+        <!-- Authentication buttons will be handled by JavaScript -->
+      </nav>
+    </header>
 
-      <main class="main">
-        <div id="content">
-          <!-- メインコンテンツがここに動的に挿入されます -->
-        </div>
-      </main>
+    <main class="main">
+      <div id="app-content">
+        <!-- メインコンテンツがここに動的に挿入されます -->
+      </div>
+    </main>
 
-      <footer class="footer">
-        <p>&copy; 2024 Habit Tracker. All rights reserved.</p>
-      </footer>
-    </div>
+    <footer class="footer">
+      <p>&copy; 2024 Habit Tracker. All rights reserved.</p>
+    </footer>
+
+    <div id="app" class="hidden"></div> <!-- App.js will initialize here but won't render directly -->
 
     <script type="module" src="./src/main.js"></script>
   </body>
