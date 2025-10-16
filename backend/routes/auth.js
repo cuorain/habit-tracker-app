@@ -6,8 +6,6 @@ import express from "express";
 const router = express.Router();
 import bcrypt from "bcryptjs"; // パスワードハッシュ化のため
 import jwt from "jsonwebtoken"; // JSON Web Token発行のため
-import db from "../models/index.js"; // データベースモデルのインポート
-const { User } = db;
 
 /**
  * @route POST /api/v1/auth/register
@@ -20,6 +18,7 @@ const { User } = db;
  */
 router.post("/register", async (req, res) => {
   const { username, password } = req.body;
+  const User = req.app.locals.User; // Userモデルをreq.app.localsから取得
 
   try {
     // ユーザー名が既に存在するか確認
@@ -64,6 +63,7 @@ router.post("/register", async (req, res) => {
  */
 router.post("/login", async (req, res) => {
   const { username, password } = req.body;
+  const User = req.app.locals.User; // Userモデルをreq.app.localsから取得
 
   try {
     // ユーザー名を検索

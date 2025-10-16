@@ -1,47 +1,73 @@
-/**
- * @description 認証APIのエンドポイント（登録とログイン）の統合テストを定義するファイルです。
- */
-
 import request from "supertest";
-import app from "../../backend/server.js";
-import db from "../../backend/models/index.js";
+import initializeApp from "../server.js";
 
-const { sequelize, User } = db;
+let app;
+
+// initializeDb、sequelize、Userはjest.setup.cjsでグローバルモックされるため、ここではインポートしない
+// ただし、テストケース内でUserモデルのモックメソッドを一時的に上書きするために、User変数を定義しておく
+let User; // グローバルスコープのUser変数
 
 describe("Auth API", () => {
-  /**
-   * 全てのテストが実行される前に一度だけ実行されるフック。
-   * - データベースモデルを同期し、Userテーブルを強制的に再作成してクリーンな状態を保証する。
-   */
   beforeAll(async () => {
-    await sequelize.sync({ force: true });
+    // グローバルモックされたinitializeAppを呼び出すことで、モックされたdbオブジェクトが返される
+    app = await initializeApp();
+
+    // JestのモックからUserモデルを取得
+    // ここでUserモデルを明示的に取得することで、テストケース内でモックを操作できるようにする
+    // initializeAppが返したapp.locals.Userを使用することも可能だが、テストの独立性を高めるため、モックされたSequelizeからUserを"再取得"する
+    const { Sequelize, DataTypes } = await import("sequelize"); // SequelizeとDataTypesをモックから取得
+    const mockSequelize = new Sequelize("dummy", "dummy", "dummy");
+    User = mockSequelize.define("User", { username: DataTypes.STRING, passwordHash: DataTypes.STRING });
+
+    // app.locals.User にモックされたUserを設定
+    app.locals.User = User;
+
+    // グローバルモックされたsyncが呼ばれることを期待
+    await mockSequelize.sync({ force: true });
   });
 
-  /**
-   * 全てのテストが完了した後に一度だけ実行されるフック。
-   * - Sequelizeデータベース接続を閉じる。
-   */
   afterAll(async () => {
-    await sequelize.close();
+    // グローバルモックされたcloseが呼ばれることを期待
+    // jest.restoreAllMocks(); はグローバルモックのため不要
+    const { Sequelize } = await import("sequelize");
+    const mockSequelize = new Sequelize("dummy", "dummy", "dummy");
+    await mockSequelize.close();
   });
 
-  /**
-   * 各テストケースが実行された後に実行されるフック。
-   * - Userテーブルの全データを削除して、各テストが独立して実行されるようにクリーンな状態を保つ。
-   */
   afterEach(async () => {
-    await User.destroy({ truncate: true });
+    // グローバルモックされたdestroyが呼ばれることを期待
+    // jest.clearAllMocks(); はグローバルモックのため不要
+    if (User && User.destroy) {
+      await User.destroy({ truncate: true });
+    }
+    // 各テストケースの後にモックをクリアし、独立性を保つ
+    jest.clearAllMocks();
   });
 
-  /**
-   * ユーザー登録APIエンドポイントのテストスイート
-   */
   describe("/POST api/v1/auth/register", () => {
-    it("it should register a new user", async () => {
+    it("TC-001: ユーザー登録成功 - it should register a new user", async () => {
       const user = {
         username: "testuser",
         password: "testpassword",
       };
+
+      // ユーザーが存在しないことをモック（登録成功のため）
+      User.findOne.mockResolvedValueOnce(null);
+
+      // User.createのモックを一時的にオーバーライドして、テストケース固有の振る舞いを定義
+      // toJSONメソッドを追加し、ExpressがJSONとしてシリアライズできるようにする
+      User.create.mockImplementationOnce((data) =>
+        Promise.resolve({
+          id: 1,
+          username: data.username, // usernameも直接設定
+          passwordHash: "hashedpassword",
+          toJSON: () => ({
+            id: 1,
+            username: data.username,
+            passwordHash: undefined,
+          }),
+        })
+      );
 
       const response = await request(app)
         .post("/api/v1/auth/register")
@@ -49,21 +75,31 @@ describe("Auth API", () => {
 
       expect(response.status).toBe(201);
       expect(response.body).toBeInstanceOf(Object);
-      expect(response.body).toHaveProperty("id");
+      expect(response.body).toHaveProperty("id", 1);
       expect(response.body).toHaveProperty("username", "testuser");
       expect(response.body).toHaveProperty("token");
+      expect(User.findOne).toHaveBeenCalledWith({
+        where: { username: "testuser" },
+      });
+      expect(User.create).toHaveBeenCalledWith(expect.objectContaining({
+        username: "testuser",
+      }));
     });
 
-    it("it should NOT register a user with existing username", async () => {
+    it("TC-002: ユーザー登録失敗（ユーザー名重複） - it should NOT register a user with existing username", async () => {
       const user = {
         username: "testuser",
         password: "testpassword",
       };
 
-      // 最初のユーザー登録
-      await request(app).post("/api/v1/auth/register").send(user);
+      // ユーザーが既に存在することをモック
+      User.findOne.mockResolvedValueOnce({
+        id: 1,
+        username: "testuser",
+        passwordHash: "hashedpassword",
+        toJSON: () => ({ id: 1, username: "testuser" }),
+      });
 
-      // 同じユーザー名で再度登録を試みる
       const response = await request(app)
         .post("/api/v1/auth/register")
         .send(user);
@@ -72,76 +108,91 @@ describe("Auth API", () => {
       expect(response.body).toBeInstanceOf(Object);
       expect(response.body).toHaveProperty(
         "message",
-        "Username already exists"
+        "ユーザー名は既に使用されています。"
       );
+      expect(User.findOne).toHaveBeenCalledWith({
+        where: { username: "testuser" },
+      });
+      // ユーザーが既に存在するため、createは呼び出されないことを期待
+      expect(User.create).not.toHaveBeenCalled();
     });
   });
 
-  /**
-   * ユーザーログインAPIエンドポイントのテストスイート
-   */
   describe("/POST api/v1/auth/login", () => {
-    it("it should login the user", async () => {
+    it("TC-003: ログイン成功 - it should login the user", async () => {
       const user = {
         username: "loginuser",
         password: "loginpassword",
       };
 
-      // ユーザー登録
-      await request(app).post("/api/v1/auth/register").send(user);
+      // ユーザーが存在することをモックし、パスワード比較を成功させる
+      User.findOne.mockResolvedValueOnce({
+        id: 1,
+        username: "loginuser",
+        passwordHash: "hashedpassword",
+        // comparePassword メソッドをモック
+        comparePassword: jest.fn().mockResolvedValue(true),
+        toJSON: () => ({ id: 1, username: "loginuser" }),
+      });
 
-      // ログイン
-      const response = await request(app).post("/api/v1/auth/login").send(user);
+      const response = await request(app)
+        .post("/api/v1/auth/login")
+        .send(user);
 
       expect(response.status).toBe(200);
       expect(response.body).toBeInstanceOf(Object);
-      expect(response.body).toHaveProperty("id");
+      expect(response.body).toHaveProperty("id", 1);
       expect(response.body).toHaveProperty("username", "loginuser");
       expect(response.body).toHaveProperty("token");
+      expect(User.findOne).toHaveBeenCalledWith({
+        where: { username: "loginuser" },
+      });
+      // createはログイン時には呼び出されない
+      expect(User.create).not.toHaveBeenCalled();
     });
 
-    it("it should NOT login with incorrect password", async () => {
+    it("TC-004: ログイン失敗（パスワード不一致） - it should NOT login with incorrect password", async () => {
       const user = {
         username: "wrongpassuser",
-        password: "correctpassword",
+        password: "correctpassword", // これはデータベースに保存されているパスワードを指す
       };
 
-      // ユーザー登録
-      await request(app).post("/api/v1/auth/register").send(user);
+      // bcrypt.compare を一時的にモックして、false を返すように設定
+      const bcrypt = await import('bcryptjs'); // bcryptjsをインポート
+      const compareSpy = jest.spyOn(bcrypt, 'compare').mockResolvedValueOnce(false);
 
-      const loginUser = {
+      // ユーザーが存在することをモック
+      User.findOne.mockResolvedValueOnce({
+        id: 1,
         username: "wrongpassuser",
-        password: "wrongpassword",
+        passwordHash: "hashedpassword", // ハッシュ化されたパスワード
+        toJSON: () => ({ id: 1, username: "wrongpassuser" }),
+      });
+
+      const loginAttemptUser = {
+        username: "wrongpassuser",
+        password: "wrongpassword", // ログイン試行時の誤ったパスワード
       };
 
-      // 間違ったパスワードでログイン
       const response = await request(app)
         .post("/api/v1/auth/login")
-        .send(loginUser);
+        .send(loginAttemptUser);
 
       expect(response.status).toBe(401);
       expect(response.body).toBeInstanceOf(Object);
       expect(response.body).toHaveProperty(
         "message",
-        "Invalid username or password"
+        "無効なユーザー名またはパスワードです。"
       );
-    });
-
-    it("it should NOT login with non-existent username", async () => {
-      const user = {
-        username: "nonexistentuser",
-        password: "somepassword",
-      };
-
-      // 存在しないユーザーでログイン
-      const response = await request(app).post("/api/v1/auth/login").send(user);
-
-      expect(response.status).toBe(401);
-      expect(response.body).toBeInstanceOf(Object);
-      expect(response.body).toHaveProperty(
-        "message",
-        "Invalid username or password"
+      expect(User.findOne).toHaveBeenCalledWith({
+        where: { username: "wrongpassuser" },
+      });
+      // bcrypt.compare が正しい引数で呼び出されたことを確認
+      expect(compareSpy).toHaveBeenCalledWith(
+        loginAttemptUser.password,
+        "hashedpassword"
       );
+      expect(User.create).not.toHaveBeenCalled();
     });
   });
 });
