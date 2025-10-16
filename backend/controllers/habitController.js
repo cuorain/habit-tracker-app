@@ -1,0 +1,39 @@
+/**
+ * @description 習慣に関するコントローラー関数を定義します。
+ */
+
+import initializeSequelize from '../models/index.js';
+
+/**
+ * 全ての習慣を取得します。
+ * @param {object} req - Expressのリクエストオブジェクト。
+ * @param {object} res - Expressのレスポンスオブジェクト。
+ */
+export const getHabits = async (req, res) => {
+  try {
+    const db = await initializeSequelize();
+    const { Habit } = db;
+    const userId = req.user.id; // 認証されたユーザーのID
+
+    const habits = await Habit.findAll({
+      where: { userId },
+      attributes: [
+        'id',
+        'name',
+        'description',
+        'category',
+        'habitType',
+        'targetValue',
+        'targetUnit',
+        'targetFrequency',
+        'createdAt',
+        'updatedAt',
+      ],
+    });
+
+    res.status(200).json(habits);
+  } catch (error) {
+    console.error("習慣の取得中にエラーが発生しました:", error);
+    res.status(500).json({ message: "サーバーエラーが発生しました。" });
+  }
+};

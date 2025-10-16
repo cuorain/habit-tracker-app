@@ -58,6 +58,11 @@ const initializeSequelize = async () => {
     }
   });
 
+  db.User.hasMany(db.Habit, {
+    foreignKey: 'userId',
+    onDelete: 'CASCADE',
+  });
+
   db.sequelize = sequelizeInstance;
   db.Sequelize = Sequelize;
 

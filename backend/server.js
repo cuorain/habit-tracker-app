@@ -15,19 +15,24 @@ const PORT = process.env.PORT || 8080;
 
 // 認証ルートをインポート
 import authRoutes from "./routes/auth.js";
+// 習慣ルートをインポート
+import habitRoutes from "./routes/habit.js";
 // データベースモデルをインポート
 import initializeDb from "./models/index.js";
 
 let sequelize;
 let User;
+let Habit;
 
 const initializeApp = async () => {
   const initializedDb = await initializeDb();
 
   sequelize = initializedDb.sequelize;
   User = initializedDb.User;
+  Habit = initializedDb.Habit; // Habitモデルを初期化されたDBから取得
 
   app.locals.User = User; // UserモデルをExpressアプリのローカル変数として利用可能にする
+  app.locals.Habit = Habit; // HabitモデルをExpressアプリのローカル変数として利用可能にする
 
   // グローバルミドルウェア
   // JSONリクエストボディをパースするためのミドルウェア
@@ -42,6 +47,8 @@ const initializeApp = async () => {
   });
   // 認証関連のルートを '/api/v1/auth' パスにマウント
   app.use("/api/v1/auth", authRoutes);
+  // 習慣関連のルートを '/api/v1' パスにマウント
+  app.use("/api/v1", habitRoutes);
 
   /**
    * Sequelizeモデルをデータベースと同期し、サーバーを起動する。
