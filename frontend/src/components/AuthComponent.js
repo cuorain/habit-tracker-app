@@ -9,7 +9,6 @@ class AuthComponent {
     this.container.className = "auth-container";
     this.errorElement = document.createElement("p");
     this.errorElement.className = "error-message";
-    this.errorElement.style.color = "red";
     this.errorElement.style.display = "none";
   }
 
@@ -17,26 +16,38 @@ class AuthComponent {
     this.container.innerHTML = ""; // Clear previous content
     this.errorElement.style.display = "none";
 
-    const formTitle = this.mode === "login" ? "Login" : "Register";
-    const submitButtonText = this.mode === "login" ? "Login" : "Register";
-    const toggleLinkText =
-      this.mode === "login"
-        ? "Need an account? Register"
-        : "Already have an account? Login";
+    const title = this.mode === "login" ? "登録してコンテンツを楽しもう" : "アカウントを作成";
+    const subtitle = this.mode === "login" ? "ユーザー名とパスワードを入力してください" : "必要事項を入力してください";
+    const submitButtonText = this.mode === "login" ? "次へ" : "登録";
+    const toggleLinkText = this.mode === "login" ? "アカウントをお持ちでない方はこちら" : "すでにアカウントをお持ちの方はこちら";
 
     this.container.innerHTML = `
-      <h2>${formTitle}</h2>
-      <form id="auth-form">
-        <input type="text" id="username" placeholder="Username" required />
-        <input type="password" id="password" placeholder="Password" required />
-        ${
-          this.mode === "register"
-            ? '<input type="password" id="confirm-password" placeholder="Confirm Password" required />'
-            : ""
-        }
-        <button type="submit">${submitButtonText}</button>
-      </form>
-      <p><a href="#" id="toggle-auth-mode">${toggleLinkText}</a></p>
+      <div class="auth-card">
+        <h1 class="auth-title">${title}</h1>
+        <p class="auth-subtitle">${subtitle}</p>
+        <form id="auth-form" class="auth-form">
+          <div class="form-group">
+            <label for="username">ユーザー名</label>
+            <input type="text" id="username" placeholder="ユーザー名" required />
+          </div>
+          <div class="form-group">
+            <label for="password">パスワード</label>
+            <input type="password" id="password" placeholder="••••••••" required />
+          </div>
+          ${
+            this.mode === "register"
+              ? `<div class="form-group">
+                   <label for="confirm-password">パスワード確認</label>
+                   <input type="password" id="confirm-password" placeholder="••••••••" required />
+                 </div>`
+              : ""
+          }
+          <button type="submit" class="btn btn-pill btn-block btn-gradient">${submitButtonText}</button>
+        </form>
+        <div class="auth-toggle">
+          <a href="#" id="toggle-auth-mode">${toggleLinkText}</a>
+        </div>
+      </div>
     `;
 
     this.container.prepend(this.errorElement);
@@ -44,8 +55,7 @@ class AuthComponent {
     const authForm = this.container.querySelector("#auth-form");
     authForm.addEventListener("submit", this.handleSubmit.bind(this));
 
-    const toggleAuthModeLink =
-      this.container.querySelector("#toggle-auth-mode");
+    const toggleAuthModeLink = this.container.querySelector("#toggle-auth-mode");
     toggleAuthModeLink.addEventListener("click", this.switchMode.bind(this));
 
     return this.container;
@@ -81,7 +91,7 @@ class AuthComponent {
 
   validateForm(username, password, confirmPassword) {
     if (this.mode === "register" && password !== confirmPassword) {
-      this.showError("Passwords do not match.");
+      this.showError("パスワードが一致しません。");
       return false;
     }
     return true;

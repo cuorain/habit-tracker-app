@@ -8,6 +8,12 @@ export default defineConfig({
     port: 5173,
     host: true,
   },
+  define: {
+    // process.envをブラウザ環境で使えるようにする
+    'process.env': {
+      VITE_API_URL: JSON.stringify(process.env.VITE_API_URL || "http://localhost:3000")
+    }
+  },
   resolve: {
     // エイリアスの設定: @ を src ディレクトリにマッピング
     alias: {

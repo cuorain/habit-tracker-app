@@ -37,6 +37,9 @@ Authorization: Bearer <token>
     "token": "string"
   }
   ```
+- **エラーレスポンスの例:**
+  - ユーザー名が既に存在する場合 (409 Conflict): `{"message": "ユーザー名は既に使用されています。"}`
+  - サーバーエラー (500 Internal Server Error): `{"message": "サーバーエラーが発生しました。"}`
 
 #### ユーザーログイン
 - **POST** `/auth/login`
@@ -55,6 +58,9 @@ Authorization: Bearer <token>
     "token": "string"
   }
   ```
+- **エラーレスポンスの例:**
+  - 無効なユーザー名またはパスワードの場合 (401 Unauthorized): `{"message": "無効なユーザー名またはパスワードです。"}`
+  - サーバーエラー (500 Internal Server Error): `{"message": "サーバーエラーが発生しました。"}`
 
 ### 2. 習慣管理
 

@@ -6,41 +6,56 @@
 }
 
 /* 基本スタイル */
+:root {
+    --color-primary: #FF4500; /* オレンジレッド */
+    --color-secondary: #FF8C00; /* ダークオレンジ */
+    --color-accent: #FFD700; /* ゴールド */
+    --color-dark: #212121;
+    --color-light: #F5F5F5;
+    --color-gray: #B0BEC5;
+}
+
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     line-height: 1.6;
-    color: #333;
-    background-color: #f5f5f5;
+    color: var(--color-dark);
+    background-color: var(--color-light);
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* Ensure body takes full viewport height */
 }
 
 /* レイアウト */
 .header {
-    background-color: #2c3e50;
+    background-color: var(--color-dark);
     color: white;
-    padding: 1rem 2rem;
+    padding: 1.25rem 2.5rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4); /* より強く、深みのある影 */
+    border-bottom: 3px solid var(--color-primary); /* スポーティなアクセントライン */
 }
 
 .header h1 {
-    font-size: 1.8rem;
-    font-weight: 600;
+    font-size: 2rem;
+    font-weight: 800;
+    letter-spacing: 0.05em; /* 文字間を広げて洗練された印象に */
+    text-transform: uppercase; /* 大文字でスポーティに */
 }
 
 .nav {
     display: flex;
-    gap: 1rem;
+    gap: 1.5rem;
 }
 
 .main {
-    min-height: calc(100vh - 140px);
+    flex-grow: 1; /* Allow main content to grow and push footer down */
     padding: 2rem;
 }
 
 .footer {
-    background-color: #34495e;
+    background-color: var(--color-dark);
     color: white;
     text-align: center;
     padding: 1rem;
@@ -58,21 +73,21 @@ body {
 }
 
 .btn-primary {
-    background-color: #3498db;
+    background-color: var(--color-secondary);
     color: white;
 }
 
 .btn-primary:hover {
-    background-color: #2980b9;
+    background-color: #E67E00; /* 少し暗いオレンジ */
 }
 
 .btn-secondary {
-    background-color: #95a5a6;
-    color: white;
+    background-color: var(--color-gray);
+    color: var(--color-dark);
 }
 
 .btn-secondary:hover {
-    background-color: #7f8c8d;
+    background-color: #90A4AE; /* 少し暗いグレー */
 }
 
 /* カードスタイル */
@@ -81,7 +96,7 @@ body {
     border-radius: 8px;
     padding: 1.5rem;
     margin-bottom: 1rem;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15); /* より明確な影に調整 */
 }
 
 /* フォームスタイル */
@@ -109,8 +124,8 @@ body {
 .form-group select:focus,
 .form-group textarea:focus {
     outline: none;
-    border-color: #3498db;
-    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+    border-color: var(--color-secondary);
+    box-shadow: 0 0 0 2px rgba(255, 140, 0, 0.4);
 }
 
 /* グリッドレイアウト */
@@ -167,4 +182,110 @@ body {
 
 .visible {
     display: block;
+}
+
+/* =========================
+   認証画面（auth-mode）
+   参考UIを意識したスポーティなトーン
+   ========================= */
+.main.auth-mode {
+    display: grid;
+    place-items: center;
+    padding: 3rem 1rem;
+    background: #121212;
+}
+
+.auth-container { /* レンダリング用の外枠（位置は .main.auth-mode に依存） */
+    width: 100%;
+    max-width: 440px;
+}
+
+.auth-card {
+    background: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    border-radius: 16px;
+    padding: 2rem;
+    color: #fff;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+}
+
+.auth-title {
+    font-size: 2rem;
+    font-weight: 800;
+    line-height: 1.2;
+    margin-bottom: 1.25rem;
+}
+
+.auth-subtitle {
+    color: #bdbdbd;
+    font-size: 0.95rem;
+    margin-bottom: 1.5rem;
+}
+
+.auth-form .form-group label {
+    color: #e0e0e0;
+}
+
+.auth-form .form-group input[type="text"],
+.auth-form .form-group input[type="password"],
+.auth-form .form-group input[type="email"] {
+    background: #2a2a2a;
+    border: 1px solid #3a3a3a;
+    color: #fff;
+    border-radius: 12px;
+    padding: 0.875rem 1rem;
+}
+
+.auth-form .form-group input:focus {
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.25);
+}
+
+.btn-pill {
+    border-radius: 9999px;
+    padding: 0.875rem 1.25rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+}
+
+.btn-block {
+    width: 100%;
+}
+
+.btn-gradient {
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 60%, var(--color-accent) 100%);
+    color: #111;
+    box-shadow: 0 6px 14px rgba(255, 120, 0, 0.35);
+    transition: transform 0.06s ease, filter 0.2s ease;
+}
+
+.btn-gradient:hover {
+    filter: brightness(1.05);
+}
+
+.btn-gradient:active {
+    transform: translateY(1px);
+}
+
+.auth-toggle {
+    text-align: center;
+    margin-top: 1rem;
+}
+
+.auth-toggle a {
+    color: #ffb74d;
+    text-decoration: none;
+}
+
+.auth-toggle a:hover {
+    text-decoration: underline;
+}
+
+.error-message {
+    background: rgba(244, 67, 54, 0.1);
+    border: 1px solid rgba(244, 67, 54, 0.35);
+    color: #ff8a80;
+    padding: 0.75rem 1rem;
+    border-radius: 12px;
+    margin-bottom: 0.75rem;
 }
