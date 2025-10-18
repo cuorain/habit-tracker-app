@@ -1,7 +1,7 @@
 class AuthService {
   constructor() {
     // Jest環境変数 (process.env) を使用
-    this.apiUrl = process.env.VITE_API_URL || "http://localhost:3000";
+    this.apiUrl = process.env.VITE_API_URL || "http://localhost:8080";
   }
 
   async login(username, password) {
