@@ -35,6 +35,8 @@ const initializeApp = async () => {
   });
   // 認証関連のルートを '/api/v1/auth' パスにマウント
   app.use("/api/v1/auth", authRoutes);
+  // 習慣関連のルートを '/api/v1/habits' パスにマウント
+  app.use("/api/v1/habits", habitRoutes);
 
   // データベース同期
   try {
