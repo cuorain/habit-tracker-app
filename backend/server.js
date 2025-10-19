@@ -9,26 +9,17 @@ import express from "express";
 // CORSミドルウェアをインポート
 import cors from "cors";
 
-const app = express();
 // サーバーがリッスンするポート。環境変数から取得、なければ8080。
 const PORT = process.env.PORT || 8080;
 
 // 認証ルートをインポート
 import authRoutes from "./routes/auth.js";
 // データベースモデルをインポート
-import initializeDb from "./models/index.js";
-
-let sequelize;
-let User;
-
+import db from "./models/index.js";
+const { sequelize } = db;
+// Expressアプリケーションとデータベース同期を初期化する関数
 const initializeApp = async () => {
-  const initializedDb = await initializeDb();
-
-  sequelize = initializedDb.sequelize;
-  User = initializedDb.User;
-
-  app.locals.User = User; // UserモデルをExpressアプリのローカル変数として利用可能にする
-
+  const app = express();
   // グローバルミドルウェア
   // JSONリクエストボディをパースするためのミドルウェア
   app.use(express.json());
@@ -43,25 +34,32 @@ const initializeApp = async () => {
   // 認証関連のルートを '/api/v1/auth' パスにマウント
   app.use("/api/v1/auth", authRoutes);
 
-  /**
-   * Sequelizeモデルをデータベースと同期し、サーバーを起動する。
-   * `force: false` は、テーブルが既に存在する場合は再作成しないことを意味する。
-   */
-  sequelize
-    .sync({ force: false })
-    .then(() => {
-      // テスト環境でない場合のみサーバーをリッスンする
-      if (process.env.NODE_ENV !== "test") {
-        app.listen(PORT, "0.0.0.0", () => {
-          console.log(`Server running on port ${PORT}`);
-        });
-      }
-    })
-    .catch((err) => {
-      console.error("Unable to connect to the database:", err);
-    });
+  // データベース同期
+  try {
+    await sequelize.sync({ force: false });
+    console.log("Database synced successfully.");
+  } catch (err) {
+    console.error("Unable to connect to the database:", err);
+    // エラー発生時はアプリの初期化を中断するか、適切に処理
+    throw err; // テストでエラーを捕捉できるように再スロー
+  }
 
+  // initializeApp 関数はExpressアプリケーションインスタンスを返す
   return app;
 };
 
+// テスト環境でない場合のみサーバーをリッスンする
+if (process.env.NODE_ENV !== "test") {
+  initializeApp()
+    .then((app) => {
+      app.listen(PORT, "0.0.0.0", () => {
+        console.log(`Server running on port ${PORT}`);
+      });
+    })
+    .catch((err) => {
+      console.error("Failed to start server:", err);
+    });
+}
+
+// テストのためにinitializeApp関数をエクスポート
 export default initializeApp;
