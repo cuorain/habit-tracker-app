@@ -82,4 +82,4 @@ const Habit = (sequelize, DataTypes) => {
   return Habit;
 };
 
-export default Habit;
+export { Habit };

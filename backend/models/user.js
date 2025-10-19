@@ -53,4 +53,4 @@ const User = (sequelize, DataTypes) => {
   return User;
 };
 
-export default User;
+export { User };

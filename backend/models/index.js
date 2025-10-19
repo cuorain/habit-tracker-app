@@ -54,7 +54,9 @@ await Promise.all(
     })
     .map(async (file) => {
       // モデルファイルを動的にインポート
-      const model = (await import(path.resolve(__dirname, file))).default(
+      const importedModule = await import(path.resolve(__dirname, file));
+      const modelName = Object.keys(importedModule)[0];
+      const model = importedModule[modelName](
         sequelize,
         Sequelize.DataTypes
       );
