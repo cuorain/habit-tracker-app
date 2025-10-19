@@ -6,6 +6,8 @@ import express from "express";
 const router = express.Router();
 import bcrypt from "bcryptjs"; // パスワードハッシュ化のため
 import jwt from "jsonwebtoken"; // JSON Web Token発行のため
+import db from "../models/index.js"; // データベースモデルのインポート
+const { User } = db;
 
 /**
  * @route POST /api/v1/auth/register
@@ -18,13 +20,12 @@ import jwt from "jsonwebtoken"; // JSON Web Token発行のため
  */
 router.post("/register", async (req, res) => {
   const { username, password } = req.body;
-  const User = req.app.locals.User; // Userモデルをreq.app.localsから取得
 
   try {
     // ユーザー名が既に存在するか確認
     let user = await User.findOne({ where: { username } });
     if (user) {
-      return res.status(409).json({ message: "ユーザー名は既に使用されています。" });
+      return res.status(409).json({ message: "Username already exists" });
     }
 
     // パスワードをハッシュ化
@@ -48,7 +49,7 @@ router.post("/register", async (req, res) => {
     res.status(201).json({ id: user.id, username: user.username, token });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "サーバーエラーが発生しました。" }); // JSON形式でエラーを返す
+    res.status(500).json({ message: "Server error" }); // JSON形式でエラーを返す
   }
 });
 
@@ -63,19 +64,18 @@ router.post("/register", async (req, res) => {
  */
 router.post("/login", async (req, res) => {
   const { username, password } = req.body;
-  const User = req.app.locals.User; // Userモデルをreq.app.localsから取得
 
   try {
     // ユーザー名を検索
     const user = await User.findOne({ where: { username } });
     if (!user) {
-      return res.status(401).json({ message: "無効なユーザー名またはパスワードです。" });
+      return res.status(401).json({ message: "Invalid username or password" });
     }
 
     // 提供されたパスワードと保存されているハッシュを比較
     const isMatch = await bcrypt.compare(password, user.passwordHash);
     if (!isMatch) {
-      return res.status(401).json({ message: "無効なユーザー名またはパスワードです。" });
+      return res.status(401).json({ message: "Invalid username or password" });
     }
 
     // JWTトークンを生成
@@ -89,7 +89,7 @@ router.post("/login", async (req, res) => {
     res.status(200).json({ id: user.id, username: user.username, token });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "サーバーエラーが発生しました。" }); // JSON形式でエラーを返す
+    res.status(500).json({ message: "Server error" }); // JSON形式でエラーを返す
   }
 });
 
