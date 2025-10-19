@@ -6,7 +6,7 @@ import express from "express";
 const router = express.Router();
 import bcrypt from "bcryptjs"; // パスワードハッシュ化のため
 import jwt from "jsonwebtoken"; // JSON Web Token発行のため
-import db from "../models/index.js"; // データベースモデルのインポート
+import { db } from "../models/index.js"; // データベースモデルのインポート
 const { User } = db;
 
 /**

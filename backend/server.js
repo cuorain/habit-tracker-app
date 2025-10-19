@@ -17,8 +17,7 @@ import authRoutes from "./routes/auth.js";
 // 習慣ルートをインポート
 import habitRoutes from "./routes/habit.js";
 // データベースモデルをインポート
-import db from "./models/index.js";
-const { sequelize } = db;
+import { db, sequelize } from "./models/index.js";
 // Expressアプリケーションとデータベース同期を初期化する関数
 const initializeApp = async () => {
   const app = express();

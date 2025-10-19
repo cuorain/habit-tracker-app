@@ -2,7 +2,7 @@
  * @description 習慣に関するコントローラー関数を定義します。
  */
 
-import initializeSequelize from '../models/index.js';
+import { db } from "../models/index.js";
 
 /**
  * 全ての習慣を取得します。
@@ -11,23 +11,22 @@ import initializeSequelize from '../models/index.js';
  */
 export const getHabits = async (req, res) => {
   try {
-    const db = await initializeSequelize();
     const { Habit } = db;
     const userId = req.user.id; // 認証されたユーザーのID
 
     const habits = await Habit.findAll({
       where: { userId },
       attributes: [
-        'id',
-        'name',
-        'description',
-        'category',
-        'habitType',
-        'targetValue',
-        'targetUnit',
-        'targetFrequency',
-        'createdAt',
-        'updatedAt',
+        "id",
+        "name",
+        "description",
+        "category",
+        "habitType",
+        "targetValue",
+        "targetUnit",
+        "targetFrequency",
+        "createdAt",
+        "updatedAt",
       ],
     });
 
