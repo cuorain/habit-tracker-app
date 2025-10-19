@@ -101,4 +101,9 @@ describe("HabitService", () => {
       "認証トークンが見つかりません。"
     );
   });
+
+  test("Debug: HabitServiceモジュールがgetHabitsを名前付きエクスポートしていること", async () => {
+    const HabitServiceModule = await import("../HabitService");
+    expect(HabitServiceModule.getHabits).toBeInstanceOf(Function);
+  });
 });
