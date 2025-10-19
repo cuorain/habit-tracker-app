@@ -10,9 +10,9 @@ export default defineConfig({
   },
   define: {
     // process.envをブラウザ環境で使えるようにする
-    'process.env': {
-      VITE_API_URL: process.env.VITE_API_URL || "http://localhost:8080"
-    }
+    "process.env": {
+      VITE_API_URL: process.env.VITE_API_URL || "http://localhost:8080",
+    },
   },
   resolve: {
     // エイリアスの設定: @ を src ディレクトリにマッピング
