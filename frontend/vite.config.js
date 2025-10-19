@@ -3,7 +3,7 @@ import path from "path";
 
 // 現在のファイルのディレクトリ名を取得
 const __dirname = path.resolve();
-export default defineConfig({
+export const viteConfig = defineConfig({
   server: {
     port: 5173,
     host: true,
