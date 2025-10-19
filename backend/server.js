@@ -13,9 +13,9 @@ import cors from "cors";
 const PORT = process.env.PORT || 8080;
 
 // 認証ルートをインポート
-import authRoutes from "./routes/auth.js";
+import { authRoutes } from "./routes/auth.js";
 // 習慣ルートをインポート
-import habitRoutes from "./routes/habit.js";
+import { habitRoutes } from "./routes/habit.js";
 // データベースモデルをインポート
 import { db, sequelize } from "./models/index.js";
 // Expressアプリケーションとデータベース同期を初期化する関数
@@ -64,5 +64,4 @@ if (process.env.NODE_ENV !== "test") {
     });
 }
 
-// テストのためにinitializeApp関数をエクスポート
-export default initializeApp;
+export { initializeApp };

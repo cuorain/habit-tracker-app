@@ -6,9 +6,9 @@ import express from "express";
 import { getHabits } from "../controllers/habitController.js";
 import { authenticateToken } from "../middleware/authMiddleware.js";
 
-const router = express.Router();
+const habitRoutes = express.Router();
 
 // 習慣一覧取得
-router.get("/", authenticateToken, getHabits);
+habitRoutes.get("/", authenticateToken, getHabits);
 
-export default router;
+export { habitRoutes };

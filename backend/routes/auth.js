@@ -3,7 +3,7 @@
  */
 
 import express from "express";
-const router = express.Router();
+const authRoutes = express.Router();
 import bcrypt from "bcryptjs"; // パスワードハッシュ化のため
 import jwt from "jsonwebtoken"; // JSON Web Token発行のため
 import { db } from "../models/index.js"; // データベースモデルのインポート
@@ -18,7 +18,7 @@ const { User } = db;
  * @returns {object} 409 - ユーザー名が既に存在する場合: エラーメッセージ。
  * @returns {object} 500 - サーバーエラー発生時: エラーメッセージ。
  */
-router.post("/register", async (req, res) => {
+authRoutes.post("/register", async (req, res) => {
   const { username, password } = req.body;
 
   try {
@@ -62,7 +62,7 @@ router.post("/register", async (req, res) => {
  * @returns {object} 401 - 無効なユーザー名またはパスワードの場合: エラーメッセージ。
  * @returns {object} 500 - サーバーエラー発生時: エラーメッセージ。
  */
-router.post("/login", async (req, res) => {
+authRoutes.post("/login", async (req, res) => {
   const { username, password } = req.body;
 
   try {
@@ -97,4 +97,4 @@ router.post("/login", async (req, res) => {
   }
 });
 
-export default router;
+export { authRoutes };
