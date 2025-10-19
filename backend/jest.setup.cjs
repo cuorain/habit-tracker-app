@@ -37,7 +37,10 @@ jest.mock("sequelize", () => {
       DATE: "DATE",
     },
   };
-  return { Sequelize: jest.fn(() => mSequelize), DataTypes: mSequelize.DataTypes };
+  return {
+    Sequelize: jest.fn(() => mSequelize),
+    DataTypes: mSequelize.DataTypes,
+  };
 });
 
 // userモデルのモック（必要なメソッドを追加）
@@ -74,9 +77,9 @@ jest.mock("../models/index.js", () => {
   );
   MockUser.findOne = jest.fn().mockResolvedValue(null); // findOneのデフォルトモックも設定
 
-  return jest.fn().mockResolvedValue({
+  return {
     sequelize: mockSequelizeInstance,
     Sequelize: Sequelize,
     User: MockUser,
-  });
+  };
 });
