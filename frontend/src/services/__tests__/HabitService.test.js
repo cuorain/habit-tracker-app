@@ -1,4 +1,4 @@
-import HabitService from "../HabitService";
+import { HabitService } from "../HabitService";
 
 // Mock localStorage
 const localStorageMock = (function () {
@@ -104,6 +104,8 @@ describe("HabitService", () => {
 
   test("Debug: HabitServiceモジュールがgetHabitsを名前付きエクスポートしていること", async () => {
     const HabitServiceModule = await import("../HabitService");
-    expect(HabitServiceModule.getHabits).toBeInstanceOf(Function);
+    const HabitServiceClass = HabitServiceModule.HabitService;
+    const habitServiceInstance = new HabitServiceClass();
+    expect(habitServiceInstance.getHabits).toBeInstanceOf(Function);
   });
 });

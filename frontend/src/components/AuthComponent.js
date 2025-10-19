@@ -1,6 +1,6 @@
-import AuthService from "../services/AuthService";
+import { AuthService } from "../services/AuthService";
 
-class AuthComponent {
+export class AuthComponent {
   constructor(onAuthSuccess) {
     this.authService = new AuthService();
     this.onAuthSuccess = onAuthSuccess;
@@ -16,10 +16,19 @@ class AuthComponent {
     this.container.innerHTML = ""; // Clear previous content
     this.errorElement.style.display = "none";
 
-    const title = this.mode === "login" ? "登録してコンテンツを楽しもう" : "アカウントを作成";
-    const subtitle = this.mode === "login" ? "ユーザー名とパスワードを入力してください" : "必要事項を入力してください";
+    const title =
+      this.mode === "login"
+        ? "登録してコンテンツを楽しもう"
+        : "アカウントを作成";
+    const subtitle =
+      this.mode === "login"
+        ? "ユーザー名とパスワードを入力してください"
+        : "必要事項を入力してください";
     const submitButtonText = this.mode === "login" ? "次へ" : "登録";
-    const toggleLinkText = this.mode === "login" ? "アカウントをお持ちでない方はこちら" : "すでにアカウントをお持ちの方はこちら";
+    const toggleLinkText =
+      this.mode === "login"
+        ? "アカウントをお持ちでない方はこちら"
+        : "すでにアカウントをお持ちの方はこちら";
 
     this.container.innerHTML = `
       <div class="auth-card">
@@ -55,7 +64,8 @@ class AuthComponent {
     const authForm = this.container.querySelector("#auth-form");
     authForm.addEventListener("submit", this.handleSubmit.bind(this));
 
-    const toggleAuthModeLink = this.container.querySelector("#toggle-auth-mode");
+    const toggleAuthModeLink =
+      this.container.querySelector("#toggle-auth-mode");
     toggleAuthModeLink.addEventListener("click", this.switchMode.bind(this));
 
     return this.container;
@@ -108,7 +118,3 @@ class AuthComponent {
     this.errorElement.style.display = "block";
   }
 }
-
-export default AuthComponent;
-
-

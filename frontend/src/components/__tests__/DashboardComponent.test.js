@@ -1,18 +1,25 @@
-import { getHabits } from "../../services/HabitService";
+import { HabitService } from "../../services/HabitService";
 
-// Mock HabitService
+// Mock HabitService class and its methods
 jest.mock("../../services/HabitService", () => ({
-  getHabits: jest.fn(),
+  HabitService: jest.fn().mockImplementation(() => ({
+    getHabits: jest.fn(),
+  })),
 }));
 
 describe("DashboardComponent", () => {
+  let mockGetHabits;
+
   beforeEach(() => {
-    // Reset mocks before each test
-    getHabits.mockClear();
+    // Reset mocks and re-implement getHabits for each test
+    HabitService.mockClear();
+    mockGetHabits = jest.fn();
+    HabitService.mockImplementation(() => ({
+      getHabits: mockGetHabits,
+    }));
   });
 
   test("習慣を取得して表示できること", async () => {
-    // Mock habit data
     const mockHabits = [
       { id: "1", name: "Exercise", type: "boolean", goal: null, unit: null },
       {
@@ -23,28 +30,40 @@ describe("DashboardComponent", () => {
         unit: "glasses",
       },
     ];
-    getHabits.mockResolvedValue(mockHabits);
+    mockGetHabits.mockResolvedValue(mockHabits);
 
-    // Create a container element for the DashboardComponent
     const container = document.createElement("div");
     document.body.appendChild(container);
 
-    // Dynamically import and initialize the DashboardComponent
-    // Assuming DashboardComponent has an init function that takes a container element
     const { initDashboard } = await import("../DashboardComponent.js");
     await initDashboard(container);
 
-    // Assert that getHabits was called
-    expect(getHabits).toHaveBeenCalledTimes(1);
+    expect(mockGetHabits).toHaveBeenCalledTimes(1);
 
-    // Assert that habits are displayed in the DOM
     const habitElements = container.querySelectorAll(".habit-item");
     expect(habitElements.length).toBe(mockHabits.length);
 
     expect(habitElements[0].textContent).toContain("Exercise");
     expect(habitElements[1].textContent).toContain("Drink Water");
 
-    // Clean up
+    document.body.removeChild(container);
+  });
+
+  test("習慣が0件の場合、メッセージを表示すること", async () => {
+    mockGetHabits.mockResolvedValue([]); // No habits
+
+    const container = document.createElement("div");
+    document.body.appendChild(container);
+
+    const { initDashboard } = await import("../DashboardComponent.js");
+    await initDashboard(container);
+
+    expect(mockGetHabits).toHaveBeenCalledTimes(1);
+
+    const messageElement = container.querySelector(".no-habits-message");
+    expect(messageElement).not.toBeNull();
+    expect(messageElement.textContent).toContain("習慣がありません");
+
     document.body.removeChild(container);
   });
 });

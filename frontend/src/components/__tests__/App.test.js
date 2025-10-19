@@ -1,17 +1,33 @@
-import { App } from '../App';
-import AuthService from '../../services/AuthService';
-import AuthComponent from '../AuthComponent';
+import { App } from "../App";
+import { AuthService } from "../../services/AuthService";
+import { AuthComponent } from "../AuthComponent";
+import * as DashboardComponent from "../DashboardComponent"; // DashboardComponentモジュール全体をインポート
+import { HabitService } from "../../services/HabitService"; // HabitServiceをインポート
 
 // AuthServiceとAuthComponentをモック化
-jest.mock('../../services/AuthService');
-jest.mock('../AuthComponent');
+jest.mock("../../services/AuthService");
+jest.mock("../AuthComponent");
 
-describe('App', () => {
+// DashboardComponentのinitDashboard関数をモック化
+jest.mock("../DashboardComponent", () => ({
+  initDashboard: jest.fn(),
+}));
+
+// HabitServiceクラスをモック化
+jest.mock("../../services/HabitService", () => ({
+  HabitService: jest.fn().mockImplementation(() => ({
+    getHabits: jest.fn(),
+  })),
+}));
+
+describe("App", () => {
   let app;
   let rootElement;
   let mainElement;
   let mockAuthServiceInstance;
   let mockAuthComponentInstance;
+  let mockHabitServiceInstance;
+  let mockGetHabits;
 
   beforeEach(() => {
     // DOMをリセット
@@ -22,12 +38,14 @@ describe('App', () => {
       </main>
       <footer class="footer"></footer>
     `;
-    rootElement = document.getElementById('app-content');
-    mainElement = document.querySelector('main');
+    rootElement = document.getElementById("app-content");
+    mainElement = document.querySelector("main");
 
     // モックのクリア
     AuthService.mockClear();
     AuthComponent.mockClear();
+    DashboardComponent.initDashboard.mockClear(); // initDashboardのモックをクリア
+    HabitService.mockClear(); // HabitServiceのモックをクリア
 
     // AuthServiceのモック実装
     mockAuthServiceInstance = {
@@ -39,57 +57,72 @@ describe('App', () => {
     // AuthComponentのモック実装
     mockAuthComponentInstance = {
       render: jest.fn(() => {
-        const div = document.createElement('div');
-        div.id = 'mock-auth-component';
+        const div = document.createElement("div");
+        div.id = "mock-auth-component";
         return div;
       }),
     };
     AuthComponent.mockImplementation(() => mockAuthComponentInstance);
 
+    // HabitServiceのモック実装
+    mockGetHabits = jest.fn();
+    mockHabitServiceInstance = {
+      getHabits: mockGetHabits,
+    };
+    HabitService.mockImplementation(() => mockHabitServiceInstance);
+
     app = new App(); // Appインスタンスはここで一度だけ作成
   });
 
-  it('init()がrenderを呼び出すこと', () => {
-    jest.spyOn(app, 'render');
+  it("init()がrenderを呼び出すこと", () => {
+    jest.spyOn(app, "render");
     app.init();
     expect(app.render).toHaveBeenCalledTimes(1);
   });
 
-  describe('render', () => {
-    it('未認証の場合、AuthComponentをレンダリングすること', () => {
+  describe("render", () => {
+    it("未認証の場合、AuthComponentをレンダリングすること", () => {
       mockAuthServiceInstance.isAuthenticated.mockReturnValue(false); // 未認証をモック
       app.render();
 
-      expect(mainElement.classList.contains('auth-mode')).toBe(true);
+      expect(mainElement.classList.contains("auth-mode")).toBe(true);
       expect(AuthComponent).toHaveBeenCalledTimes(1); // Appコンストラクタで1回だけ呼ばれる
       expect(mockAuthComponentInstance.render).toHaveBeenCalledTimes(1);
-      expect(rootElement.querySelector('#mock-auth-component')).toBeTruthy();
-      expect(rootElement.textContent).not.toContain('Welcome to Dashboard');
+      expect(rootElement.querySelector("#mock-auth-component")).toBeTruthy();
+      expect(rootElement.textContent).not.toContain("Welcome to Dashboard");
+      expect(DashboardComponent.initDashboard).not.toHaveBeenCalled(); // initDashboardは呼ばれないことを確認
     });
 
-    it('認証済みの場合、ダッシュボードのプレースホルダーをレンダリングすること', () => {
+    it("認証済みの場合、ダッシュボードをレンダリングすること", async () => {
       mockAuthServiceInstance.isAuthenticated.mockReturnValue(true); // 認証済みをモック
-      app.render();
+      mockGetHabits.mockResolvedValue([]); // HabitService.getHabitsが空の配列を返すようにモック
+      await app.render(); // awaitを追加して非同期処理の完了を待つ
 
-      expect(mainElement.classList.contains('auth-mode')).toBe(false);
+      expect(mainElement.classList.contains("auth-mode")).toBe(false);
       expect(AuthComponent).toHaveBeenCalledTimes(1); // Appコンストラクタで1回だけ呼ばれる
       expect(mockAuthComponentInstance.render).not.toHaveBeenCalled();
-      expect(rootElement.textContent).toContain('Welcome to Dashboard (placeholder)');
+      expect(DashboardComponent.initDashboard).toHaveBeenCalledTimes(1); // initDashboardが呼ばれることを確認
+      expect(DashboardComponent.initDashboard).toHaveBeenCalledWith(
+        rootElement
+      ); // rootElementが渡されることを確認
     });
   });
 
-  describe('handleAuthSuccess', () => {
-    it('renderを呼び出すこと', () => {
-      jest.spyOn(app, 'render');
-      app.handleAuthSuccess();
+  describe("handleAuthSuccess", () => {
+    it("renderを呼び出すこと", async () => {
+      jest.spyOn(app, "render");
+      mockAuthServiceInstance.isAuthenticated.mockReturnValue(true); // renderが認証済み状態を想定するため
+      mockGetHabits.mockResolvedValue([]); // renderがHabitService.getHabitsを呼び出すため
+      await app.handleAuthSuccess(); // awaitを追加
       expect(app.render).toHaveBeenCalledTimes(1);
     });
   });
 
-  describe('handleLogout', () => {
-    it('AuthService.logoutを呼び出し、renderを呼び出すこと', () => {
-      jest.spyOn(app, 'render');
-
+  describe("handleLogout", () => {
+    it("AuthService.logoutを呼び出し、renderを呼び出すこと", () => {
+      jest.spyOn(app, "render");
+      // ログアウト後のrenderは未認証状態を想定するため、AuthServiceはisAuthenticatedをfalseに返すようにしておく
+      mockAuthServiceInstance.isAuthenticated.mockReturnValue(false);
       app.handleLogout();
 
       expect(mockAuthServiceInstance.logout).toHaveBeenCalledTimes(1);

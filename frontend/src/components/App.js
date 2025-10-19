@@ -1,8 +1,8 @@
-import AuthService from "../services/AuthService";
-import AuthComponent from "./AuthComponent";
+import { AuthService } from "../services/AuthService";
+import { AuthComponent } from "./AuthComponent";
 import { initDashboard } from "./DashboardComponent";
 
-class App {
+export class App {
   constructor() {
     this.authService = new AuthService();
     this.authComponent = new AuthComponent(this.handleAuthSuccess.bind(this));
@@ -50,5 +50,3 @@ class App {
     this.render();
   }
 }
-
-export { App };

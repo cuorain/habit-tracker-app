@@ -1,7 +1,16 @@
-import { getHabits } from "../services/HabitService";
+import { HabitService } from "../services/HabitService";
 
 export async function initDashboard(container) {
-  const habits = await getHabits();
+  const habitServiceInstance = new HabitService(); // インスタンスを作成
+  const habits = await habitServiceInstance.getHabits();
+
+  if (habits.length === 0) {
+    const message = document.createElement("p");
+    message.className = "no-habits-message";
+    message.textContent = "習慣がありません";
+    container.appendChild(message);
+    return;
+  }
 
   const ul = document.createElement("ul");
   habits.forEach((habit) => {
