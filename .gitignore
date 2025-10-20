@@ -60,3 +60,5 @@ frontend/dist/
 
 # Backend Node.js dependencies
 backend/node_modules/
+
+git-secrets/

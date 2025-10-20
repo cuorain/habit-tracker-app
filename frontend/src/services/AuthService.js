@@ -15,6 +15,7 @@ export class AuthService {
     const data = await response.json();
     if (response.ok) {
       localStorage.setItem("token", data.token);
+      localStorage.setItem("username", username); // ユーザー名を保存
       return data;
     } else {
       throw new Error(data.message || "ログインに失敗しました。");
@@ -32,6 +33,7 @@ export class AuthService {
     const data = await response.json();
     if (response.ok) {
       localStorage.setItem("token", data.token);
+      localStorage.setItem("username", username); // ユーザー名を保存
       return data;
     } else {
       throw new Error(data.message || "登録に失敗しました。");
@@ -40,10 +42,15 @@ export class AuthService {
 
   logout() {
     localStorage.removeItem("token");
+    localStorage.removeItem("username"); // ユーザー名も削除
   }
 
   getToken() {
     return localStorage.getItem("token");
+  }
+
+  getUsername() {
+    return localStorage.getItem("username");
   }
 
   isAuthenticated() {

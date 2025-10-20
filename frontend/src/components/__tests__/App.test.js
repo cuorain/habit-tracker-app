@@ -32,7 +32,13 @@ describe("App", () => {
   beforeEach(() => {
     // DOMをリセット
     document.body.innerHTML = `
-      <header class="header"></header>
+      <header class="header">
+        <h1>Habit Tracker</h1>
+        <nav class="nav">
+          <span id="username-display" class="username-display"></span>
+          <button id="logout-button" class="btn btn-secondary hidden">Logout</button>
+        </nav>
+      </header>
       <main class="main">
         <div id="app-content"></div>
       </main>
@@ -40,6 +46,8 @@ describe("App", () => {
     `;
     rootElement = document.getElementById("app-content");
     mainElement = document.querySelector("main");
+    const usernameDisplay = document.getElementById("username-display");
+    const logoutButton = document.getElementById("logout-button");
 
     // モックのクリア
     AuthService.mockClear();
@@ -51,6 +59,7 @@ describe("App", () => {
     mockAuthServiceInstance = {
       isAuthenticated: jest.fn(),
       logout: jest.fn(),
+      getUsername: jest.fn(), // getUsernameをモックに追加
     };
     AuthService.mockImplementation(() => mockAuthServiceInstance);
 
@@ -74,10 +83,75 @@ describe("App", () => {
     app = new App(); // Appインスタンスはここで一度だけ作成
   });
 
-  it("init()がrenderを呼び出すこと", () => {
+  it("init()がrenderとsetupEventListenersを呼び出すこと", () => {
     jest.spyOn(app, "render");
+    jest.spyOn(app, "setupEventListeners");
     app.init();
     expect(app.render).toHaveBeenCalledTimes(1);
+    expect(app.setupEventListeners).toHaveBeenCalledTimes(1);
+  });
+
+  describe("header elements", () => {
+    beforeEach(() => {
+      // 各テストでDOM要素を再取得
+      document.body.innerHTML = `
+        <header class="header">
+          <h1>Habit Tracker</h1>
+          <nav class="nav">
+            <span id="username-display" class="username-display"></span>
+            <button id="logout-button" class="btn btn-secondary hidden">Logout</button>
+          </nav>
+        </header>
+        <main class="main">
+          <div id="app-content"></div>
+        </main>
+        <footer class="footer"></footer>
+      `;
+      app = new App(); // 新しいAppインスタンスを作成
+      app.init(); // イベントリスナーをセットアップ
+    });
+
+    it("未認証の場合、ユーザー名表示とログアウトボタンが表示されないこと", async () => {
+      mockAuthServiceInstance.isAuthenticated.mockReturnValue(false);
+      await app.render();
+      const usernameDisplay = document.getElementById("username-display");
+      const logoutButton = document.getElementById("logout-button");
+
+      expect(usernameDisplay.style.display).toBe("none");
+      expect(logoutButton.classList.contains("hidden")).toBe(true);
+    });
+
+    it("認証済みの場合、ユーザー名が表示され、ログアウトボタンが表示されること", async () => {
+      const testUsername = "testuser";
+      mockAuthServiceInstance.isAuthenticated.mockReturnValue(true);
+      mockAuthServiceInstance.getUsername.mockReturnValue(testUsername);
+      mockGetHabits.mockResolvedValue([]); // renderがHabitService.getHabitsを呼び出すため
+      await app.render();
+      const usernameDisplay = document.getElementById("username-display");
+      const logoutButton = document.getElementById("logout-button");
+
+      expect(usernameDisplay.textContent).toBe(`${testUsername}`);
+      expect(usernameDisplay.style.display).toBe("inline");
+      expect(logoutButton.classList.contains("hidden")).toBe(false);
+    });
+
+    it("ログアウトボタンをクリックするとlogoutが呼ばれ、renderが呼び出されること", async () => {
+      const testUsername = "testuser";
+      mockAuthServiceInstance.isAuthenticated.mockReturnValue(true);
+      mockAuthServiceInstance.getUsername.mockReturnValue(testUsername);
+      mockGetHabits.mockResolvedValue([]); // renderがHabitService.getHabitsを呼び出すため
+      await app.render(); // 初期レンダリングでボタンを表示
+
+      const logoutButton = document.getElementById("logout-button");
+      expect(logoutButton).not.toBeNull();
+
+      jest.spyOn(app, "render");
+      mockAuthServiceInstance.isAuthenticated.mockReturnValue(false); // ログアウト後の状態
+      logoutButton.click(); // ボタンクリックをシミュレート
+
+      expect(mockAuthServiceInstance.logout).toHaveBeenCalledTimes(1);
+      expect(app.render).toHaveBeenCalledTimes(1);
+    });
   });
 
   describe("render", () => {
