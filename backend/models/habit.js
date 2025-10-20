@@ -17,7 +17,7 @@ const Habit = (sequelize, DataTypes) => {
         primaryKey: true,
         autoIncrement: true,
       },
-      userId: {
+      user_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
@@ -37,30 +37,30 @@ const Habit = (sequelize, DataTypes) => {
         type: DataTypes.STRING(50),
         allowNull: true,
       },
-      habitType: {
+      habit_type: {
         type: DataTypes.ENUM("BOOLEAN", "NUMERIC_DURATION", "NUMERIC_COUNT"),
         allowNull: false,
         defaultValue: "BOOLEAN",
       },
-      targetValue: {
+      target_value: {
         type: DataTypes.DECIMAL(10, 2),
         allowNull: true,
       },
-      targetUnit: {
+      target_unit: {
         type: DataTypes.STRING(20),
         allowNull: true,
       },
-      targetFrequency: {
+      target_frequency: {
         type: DataTypes.INTEGER,
         allowNull: false,
         defaultValue: 1,
       },
-      createdAt: {
+      created_at: {
         type: DataTypes.DATE,
         allowNull: false,
         defaultValue: DataTypes.NOW,
       },
-      updatedAt: {
+      updated_at: {
         type: DataTypes.DATE,
         allowNull: false,
         defaultValue: DataTypes.NOW,
@@ -69,12 +69,14 @@ const Habit = (sequelize, DataTypes) => {
     {
       tableName: "habits",
       timestamps: true,
+      createdAt: "created_at",
+      updatedAt: "updated_at",
     }
   );
 
   Habit.associate = (models) => {
     Habit.belongsTo(models.User, {
-      foreignKey: "userId",
+      foreignKey: "user_id",
       onDelete: "CASCADE",
     });
   };

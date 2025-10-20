@@ -15,18 +15,18 @@ export const getHabits = async (req, res) => {
     const userId = req.user.id; // 認証されたユーザーのID
 
     const habits = await Habit.findAll({
-      where: { userId },
+      where: { user_id: userId },
       attributes: [
         "id",
         "name",
         "description",
         "category",
-        "habitType",
-        "targetValue",
-        "targetUnit",
-        "targetFrequency",
-        "createdAt",
-        "updatedAt",
+        "habit_type",
+        "target_value",
+        "target_unit",
+        "target_frequency",
+        "created_at",
+        "updated_at",
       ],
     });
 
