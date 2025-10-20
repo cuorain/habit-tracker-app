@@ -7,6 +7,7 @@ const authRoutes = express.Router();
 import bcrypt from "bcryptjs"; // パスワードハッシュ化のため
 import jwt from "jsonwebtoken"; // JSON Web Token発行のため
 import { db } from "../models/index.js"; // データベースモデルのインポート
+import { logout } from "../controllers/authController.js";
 const { User } = db;
 
 /**
@@ -96,5 +97,7 @@ authRoutes.post("/login", async (req, res) => {
     res.status(500).json({ message: "Server error" }); // JSON形式でエラーを返す
   }
 });
+
+authRoutes.post("/logout", logout);
 
 export { authRoutes };
