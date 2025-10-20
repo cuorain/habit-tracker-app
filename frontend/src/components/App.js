@@ -7,6 +7,7 @@ export class App {
     this.authService = new AuthService();
     this.authComponent = new AuthComponent(this.handleAuthSuccess.bind(this));
     this.dashboardComponent = null; // 後でインスタンス化
+    this.messageDisplay = document.getElementById("message-display");
     this.rootElement = document.getElementById("app-content"); // Target the new content div
     if (!this.rootElement) {
       // Fallback if #app-content doesn't exist (shouldn't happen with updated index.html)
@@ -73,6 +74,21 @@ export class App {
     }
   }
 
+  displayMessage(message, isError = false) {
+    if (this.messageDisplay) {
+      this.messageDisplay.textContent = message;
+      this.messageDisplay.className = `message-display ${
+        isError ? "error" : "success"
+      }`;
+      this.messageDisplay.classList.remove("hidden");
+      // 5秒後にメッセージを非表示にする
+      setTimeout(() => {
+        this.messageDisplay.classList.add("hidden");
+        this.messageDisplay.textContent = "";
+      }, 5000);
+    }
+  }
+
   handleAuthSuccess() {
     // 認証成功時に呼ばれる
     this.render();
@@ -81,6 +97,7 @@ export class App {
   handleLogout() {
     // ログアウト処理
     this.authService.logout();
+    this.displayMessage("ログアウトしました", false);
     this.render();
   }
 }
