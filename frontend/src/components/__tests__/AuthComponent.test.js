@@ -1,10 +1,10 @@
-import AuthComponent from '../AuthComponent';
-import AuthService from '../../services/AuthService';
+import { AuthComponent } from "../AuthComponent";
+import { AuthService } from "../../services/AuthService";
 
 // AuthServiceをモック化
-jest.mock('../../services/AuthService');
+jest.mock("../../services/AuthService");
 
-describe('AuthComponent', () => {
+describe("AuthComponent", () => {
   let authComponent;
   let mockOnAuthSuccess;
   let containerElement;
@@ -13,7 +13,7 @@ describe('AuthComponent', () => {
   beforeEach(() => {
     // DOMをリセット
     document.body.innerHTML = '<div id="app-content"></div>';
-    containerElement = document.getElementById('app-content');
+    containerElement = document.getElementById("app-content");
 
     mockOnAuthSuccess = jest.fn();
 
@@ -33,39 +33,44 @@ describe('AuthComponent', () => {
     mockAuthServiceInstance.isAuthenticated.mockClear();
   });
 
-  it('render時にログインフォームが正しく表示されること', () => {
+  it("render時にログインフォームが正しく表示されること", () => {
     const renderedElement = authComponent.render();
     expect(renderedElement).toBeInstanceOf(HTMLElement);
-    expect(renderedElement.querySelector('h1').textContent).toBe(
-      '登録してコンテンツを楽しもう'
+    expect(renderedElement.querySelector("h1").textContent).toBe(
+      "登録してコンテンツを楽しもう"
     );
-    expect(renderedElement.querySelector('#username')).toBeTruthy();
-    expect(renderedElement.querySelector('#password')).toBeTruthy();
-    expect(renderedElement.querySelector('#confirm-password')).toBeFalsy();
-    expect(renderedElement.querySelector('button').textContent).toBe('次へ');
+    expect(renderedElement.querySelector("#username")).toBeTruthy();
+    expect(renderedElement.querySelector("#password")).toBeTruthy();
+    expect(renderedElement.querySelector("#confirm-password")).toBeFalsy();
+    expect(renderedElement.querySelector("button").textContent).toBe("次へ");
   });
 
-  it('切り替えリンクをクリックすると登録モードに切り替わること', () => {
+  it("切り替えリンクをクリックすると登録モードに切り替わること", () => {
     authComponent.render();
-    const toggleLink = authComponent.container.querySelector('#toggle-auth-mode');
+    const toggleLink =
+      authComponent.container.querySelector("#toggle-auth-mode");
     toggleLink.click();
 
-    expect(authComponent.mode).toBe('register');
+    expect(authComponent.mode).toBe("register");
     // 再レンダリングされるので、新しい内容が反映されているか確認
-    expect(authComponent.container.querySelector('h1').textContent).toBe(
-      'アカウントを作成'
+    expect(authComponent.container.querySelector("h1").textContent).toBe(
+      "アカウントを作成"
     );
-    expect(authComponent.container.querySelector('#confirm-password')).toBeTruthy();
-    expect(authComponent.container.querySelector('button').textContent).toBe('登録');
+    expect(
+      authComponent.container.querySelector("#confirm-password")
+    ).toBeTruthy();
+    expect(authComponent.container.querySelector("button").textContent).toBe(
+      "登録"
+    );
   });
 
-  it('ログインフォームが正常に送信されたときにonAuthSuccessが呼ばれること', async () => {
+  it("ログインフォームが正常に送信されたときにonAuthSuccessが呼ばれること", async () => {
     authComponent.render();
-    const usernameInput = authComponent.container.querySelector('#username');
-    const passwordInput = authComponent.container.querySelector('#password');
+    const usernameInput = authComponent.container.querySelector("#username");
+    const passwordInput = authComponent.container.querySelector("#password");
 
-    usernameInput.value = 'testuser';
-    passwordInput.value = 'password123';
+    usernameInput.value = "testuser";
+    passwordInput.value = "password123";
 
     mockAuthServiceInstance.login.mockResolvedValueOnce(); // ログイン成功をモック
 
@@ -74,25 +79,24 @@ describe('AuthComponent', () => {
     });
 
     expect(mockAuthServiceInstance.login).toHaveBeenCalledWith(
-      'testuser',
-      'password123'
+      "testuser",
+      "password123"
     );
     expect(mockOnAuthSuccess).toHaveBeenCalledTimes(1);
   });
 
-  it('登録フォームが正常に送信されたときにonAuthSuccessが呼ばれること', async () => {
-    authComponent.mode = 'register';
+  it("登録フォームが正常に送信されたときにonAuthSuccessが呼ばれること", async () => {
+    authComponent.mode = "register";
     authComponent.render();
 
-    const usernameInput = authComponent.container.querySelector('#username');
-    const passwordInput = authComponent.container.querySelector('#password');
-    const confirmPasswordInput = authComponent.container.querySelector(
-      '#confirm-password'
-    );
+    const usernameInput = authComponent.container.querySelector("#username");
+    const passwordInput = authComponent.container.querySelector("#password");
+    const confirmPasswordInput =
+      authComponent.container.querySelector("#confirm-password");
 
-    usernameInput.value = 'newuser';
-    passwordInput.value = 'newpassword123';
-    confirmPasswordInput.value = 'newpassword123';
+    usernameInput.value = "newuser";
+    passwordInput.value = "newpassword123";
+    confirmPasswordInput.value = "newpassword123";
 
     mockAuthServiceInstance.register.mockResolvedValueOnce(); // 登録成功をモック
 
@@ -101,89 +105,91 @@ describe('AuthComponent', () => {
     });
 
     expect(mockAuthServiceInstance.register).toHaveBeenCalledWith(
-      'newuser',
-      'newpassword123'
+      "newuser",
+      "newpassword123"
     );
     expect(mockOnAuthSuccess).toHaveBeenCalledTimes(1);
   });
 
-  it('登録時にパスワードが一致しない場合、エラーが表示されること', async () => {
-    authComponent.mode = 'register';
+  it("登録時にパスワードが一致しない場合、エラーが表示されること", async () => {
+    authComponent.mode = "register";
     authComponent.render();
 
-    const usernameInput = authComponent.container.querySelector('#username');
-    const passwordInput = authComponent.container.querySelector('#password');
-    const confirmPasswordInput = authComponent.container.querySelector(
-      '#confirm-password'
-    );
+    const usernameInput = authComponent.container.querySelector("#username");
+    const passwordInput = authComponent.container.querySelector("#password");
+    const confirmPasswordInput =
+      authComponent.container.querySelector("#confirm-password");
 
-    usernameInput.value = 'newuser';
-    passwordInput.value = 'password123';
-    confirmPasswordInput.value = 'differentpassword';
+    usernameInput.value = "newuser";
+    passwordInput.value = "password123";
+    confirmPasswordInput.value = "differentpassword";
 
     await authComponent.handleSubmit({
       preventDefault: jest.fn(),
     });
 
-    expect(authComponent.container.querySelector('.error-message').textContent).toBe(
-      'パスワードが一致しません。'
-    );
-    expect(authComponent.container.querySelector('.error-message').style.display).toBe(
-      'block'
-    );
+    expect(
+      authComponent.container.querySelector(".error-message").textContent
+    ).toBe("パスワードが一致しません。");
+    expect(
+      authComponent.container.querySelector(".error-message").style.display
+    ).toBe("block");
     expect(mockOnAuthSuccess).not.toHaveBeenCalled();
   });
 
-  it('ログイン失敗時にエラーメッセージが表示されること', async () => {
+  it("ログイン失敗時にエラーメッセージが表示されること", async () => {
     authComponent.render();
 
-    const usernameInput = authComponent.container.querySelector('#username');
-    const passwordInput = authComponent.container.querySelector('#password');
+    const usernameInput = authComponent.container.querySelector("#username");
+    const passwordInput = authComponent.container.querySelector("#password");
 
-    usernameInput.value = 'testuser';
-    passwordInput.value = 'wrongpassword';
+    usernameInput.value = "testuser";
+    passwordInput.value = "wrongpassword";
 
-    mockAuthServiceInstance.login.mockRejectedValueOnce(new Error('ログインに失敗しました。')); // ログイン失敗をモック
+    mockAuthServiceInstance.login.mockRejectedValueOnce(
+      new Error("ログインに失敗しました。")
+    ); // ログイン失敗をモック
 
     await authComponent.handleSubmit({
       preventDefault: jest.fn(),
     });
 
-    expect(authComponent.container.querySelector('.error-message').textContent).toBe(
-      'ログインに失敗しました。'
-    );
-    expect(authComponent.container.querySelector('.error-message').style.display).toBe(
-      'block'
-    );
+    expect(
+      authComponent.container.querySelector(".error-message").textContent
+    ).toBe("ログインに失敗しました。");
+    expect(
+      authComponent.container.querySelector(".error-message").style.display
+    ).toBe("block");
     expect(mockOnAuthSuccess).not.toHaveBeenCalled();
   });
 
-  it('登録失敗時にエラーメッセージが表示されること', async () => {
-    authComponent.mode = 'register';
+  it("登録失敗時にエラーメッセージが表示されること", async () => {
+    authComponent.mode = "register";
     authComponent.render();
 
-    const usernameInput = authComponent.container.querySelector('#username');
-    const passwordInput = authComponent.container.querySelector('#password');
-    const confirmPasswordInput = authComponent.container.querySelector(
-      '#confirm-password'
-    );
+    const usernameInput = authComponent.container.querySelector("#username");
+    const passwordInput = authComponent.container.querySelector("#password");
+    const confirmPasswordInput =
+      authComponent.container.querySelector("#confirm-password");
 
-    usernameInput.value = 'existinguser';
-    passwordInput.value = 'password123';
-    confirmPasswordInput.value = 'password123';
+    usernameInput.value = "existinguser";
+    passwordInput.value = "password123";
+    confirmPasswordInput.value = "password123";
 
-    mockAuthServiceInstance.register.mockRejectedValueOnce(new Error('登録に失敗しました。')); // 登録失敗をモック
+    mockAuthServiceInstance.register.mockRejectedValueOnce(
+      new Error("登録に失敗しました。")
+    ); // 登録失敗をモック
 
     await authComponent.handleSubmit({
       preventDefault: jest.fn(),
     });
 
-    expect(authComponent.container.querySelector('.error-message').textContent).toBe(
-      '登録に失敗しました。'
-    );
-    expect(authComponent.container.querySelector('.error-message').style.display).toBe(
-      'block'
-    );
+    expect(
+      authComponent.container.querySelector(".error-message").textContent
+    ).toBe("登録に失敗しました。");
+    expect(
+      authComponent.container.querySelector(".error-message").style.display
+    ).toBe("block");
     expect(mockOnAuthSuccess).not.toHaveBeenCalled();
   });
 });

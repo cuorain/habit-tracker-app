@@ -24,19 +24,16 @@ const User = (sequelize, DataTypes) => {
         allowNull: false,
         unique: true,
       },
-      // パスワードハッシュ: TEXT型, NULL不可
-      passwordHash: {
+      password_hash: {
         type: DataTypes.TEXT,
         allowNull: false,
       },
-      // 作成日時: DATE型, NULL不可, デフォルトは現在時刻
-      createdAt: {
+      created_at: {
         type: DataTypes.DATE,
         allowNull: false,
         defaultValue: DataTypes.NOW,
       },
-      // 更新日時: DATE型, NULL不可, デフォルトは現在時刻
-      updatedAt: {
+      updated_at: {
         type: DataTypes.DATE,
         allowNull: false,
         defaultValue: DataTypes.NOW,
@@ -47,10 +44,12 @@ const User = (sequelize, DataTypes) => {
       tableName: "users",
       // タイムスタンプ (createdAt, updatedAt) を自動的に管理
       timestamps: true,
+      createdAt: "created_at",
+      updatedAt: "updated_at",
     }
   );
 
   return User;
 };
 
-export default User;
+export { User };
