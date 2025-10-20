@@ -130,7 +130,7 @@ describe("App", () => {
       const usernameDisplay = document.getElementById("username-display");
       const logoutButton = document.getElementById("logout-button");
 
-      expect(usernameDisplay.textContent).toBe(`Hello, ${testUsername}!`);
+      expect(usernameDisplay.textContent).toBe(`${testUsername}`);
       expect(usernameDisplay.style.display).toBe("inline");
       expect(logoutButton.classList.contains("hidden")).toBe(false);
     });
