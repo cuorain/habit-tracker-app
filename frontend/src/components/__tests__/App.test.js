@@ -1,7 +1,7 @@
 import { App } from "../App";
 import { AuthService } from "../../services/AuthService";
 import { AuthComponent } from "../AuthComponent";
-import * as DashboardComponent from "../DashboardComponent"; // DashboardComponentモジュール全体をインポート
+import { DashboardComponent } from "../DashboardComponent"; // DashboardComponentモジュール全体をインポート
 import { HabitService } from "../../services/HabitService"; // HabitServiceをインポート
 
 // AuthServiceとAuthComponentをモック化
@@ -9,9 +9,15 @@ jest.mock("../../services/AuthService");
 jest.mock("../AuthComponent");
 
 // DashboardComponentのinitDashboard関数をモック化
-jest.mock("../DashboardComponent", () => ({
-  initDashboard: jest.fn(),
-}));
+jest.mock("../DashboardComponent", () => {
+  return {
+    DashboardComponent: jest.fn().mockImplementation(() => {
+      return {
+        init: jest.fn(),
+      };
+    }),
+  };
+});
 
 // HabitServiceクラスをモック化
 jest.mock("../../services/HabitService", () => ({
@@ -28,6 +34,7 @@ describe("App", () => {
   let mockAuthComponentInstance;
   let mockHabitServiceInstance;
   let mockGetHabits;
+  let mockDashboardComponentInstance; // Add this line
 
   beforeEach(() => {
     // DOMをリセット
@@ -52,7 +59,7 @@ describe("App", () => {
     // モックのクリア
     AuthService.mockClear();
     AuthComponent.mockClear();
-    DashboardComponent.initDashboard.mockClear(); // initDashboardのモックをクリア
+    DashboardComponent.mockClear(); // DashboardComponentのモックをクリア
     HabitService.mockClear(); // HabitServiceのモックをクリア
 
     // AuthServiceのモック実装
@@ -72,6 +79,12 @@ describe("App", () => {
       }),
     };
     AuthComponent.mockImplementation(() => mockAuthComponentInstance);
+
+    // DashboardComponentのモック実装を追加
+    mockDashboardComponentInstance = {
+      init: jest.fn(),
+    };
+    DashboardComponent.mockImplementation(() => mockDashboardComponentInstance);
 
     // HabitServiceのモック実装
     mockGetHabits = jest.fn();
@@ -133,6 +146,8 @@ describe("App", () => {
       expect(usernameDisplay.textContent).toBe(`${testUsername}`);
       expect(usernameDisplay.style.display).toBe("inline");
       expect(logoutButton.classList.contains("hidden")).toBe(false);
+      expect(DashboardComponent).toHaveBeenCalledWith(app.rootElement); // DashboardComponentがrootElementでインスタンス化されることを確認
+      expect(mockDashboardComponentInstance.init).toHaveBeenCalledTimes(1); // initメソッドが呼び出されることを確認
     });
 
     it("ログアウトボタンをクリックするとlogoutが呼ばれ、renderが呼び出されること", async () => {
@@ -164,7 +179,7 @@ describe("App", () => {
       expect(mockAuthComponentInstance.render).toHaveBeenCalledTimes(1);
       expect(rootElement.querySelector("#mock-auth-component")).toBeTruthy();
       expect(rootElement.textContent).not.toContain("Welcome to Dashboard");
-      expect(DashboardComponent.initDashboard).not.toHaveBeenCalled(); // initDashboardは呼ばれないことを確認
+      expect(mockDashboardComponentInstance.init).not.toHaveBeenCalled(); // initDashboardではなく、DashboardComponentインスタンスのinitが呼ばれないことを確認
     });
 
     it("認証済みの場合、ダッシュボードをレンダリングすること", async () => {
@@ -175,10 +190,9 @@ describe("App", () => {
       expect(mainElement.classList.contains("auth-mode")).toBe(false);
       expect(AuthComponent).toHaveBeenCalledTimes(1); // Appコンストラクタで1回だけ呼ばれる
       expect(mockAuthComponentInstance.render).not.toHaveBeenCalled();
-      expect(DashboardComponent.initDashboard).toHaveBeenCalledTimes(1); // initDashboardが呼ばれることを確認
-      expect(DashboardComponent.initDashboard).toHaveBeenCalledWith(
-        rootElement
-      ); // rootElementが渡されることを確認
+      expect(DashboardComponent).toHaveBeenCalledTimes(1); // DashboardComponentのコンストラクタが呼ばれることを確認
+      expect(DashboardComponent).toHaveBeenCalledWith(app.rootElement); // rootElementが渡されることを確認
+      expect(mockDashboardComponentInstance.init).toHaveBeenCalledTimes(1); // initが呼ばれることを確認
     });
   });
 
