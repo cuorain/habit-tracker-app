@@ -4,18 +4,13 @@ import { HabitFormComponent } from "../HabitFormComponent.js";
 
 let mockFormElement; // Declare at a higher scope
 
-jest.mock("../HabitFormComponent.js", () => {
-  const mockHabitFormComponent = jest.fn().mockImplementation(() => {
-    // Use the variable from the higher scope
-    return {
-      render: jest.fn(() => mockFormElement),
-      handleSubmit: jest.fn(),
-      handleCancel: jest.fn(),
-      // Add other methods that DashboardComponent might call on HabitFormComponent
-    };
-  });
-  return mockHabitFormComponent;
-});
+jest.mock("../HabitFormComponent.js", () => ({
+  HabitFormComponent: jest.fn().mockImplementation(() => ({
+    render: jest.fn(() => mockFormElement),
+    handleSubmit: jest.fn(),
+    handleCancel: jest.fn(),
+  })),
+}));
 
 // Mock HabitService class and its methods
 jest.mock("../../services/HabitService", () => ({
