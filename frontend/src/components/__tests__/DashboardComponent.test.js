@@ -5,7 +5,7 @@ import { HabitFormComponent } from "../HabitFormComponent.js";
 let mockFormElement; // Declare at a higher scope
 
 jest.mock("../HabitFormComponent.js", () => {
-  return jest.fn().mockImplementation(() => {
+  const mockHabitFormComponent = jest.fn().mockImplementation(() => {
     // Use the variable from the higher scope
     return {
       render: jest.fn(() => mockFormElement),
@@ -14,6 +14,7 @@ jest.mock("../HabitFormComponent.js", () => {
       // Add other methods that DashboardComponent might call on HabitFormComponent
     };
   });
+  return mockHabitFormComponent;
 });
 
 // Mock HabitService class and its methods
@@ -34,7 +35,7 @@ describe("DashboardComponent", () => {
   beforeEach(() => {
     // Reset mocks and re-implement getHabits for each test
     HabitService.mockClear();
-    HabitFormComponent.mockClear();
+    // HabitFormComponent.mockClear(); // Removed
 
     mockGetHabits = jest.fn();
     mockCreateHabit = jest.fn();
@@ -55,7 +56,9 @@ describe("DashboardComponent", () => {
   });
 
   afterEach(() => {
-    document.body.removeChild(container);
+    if (container && container.parentNode === document.body) {
+      document.body.removeChild(container);
+    }
     jest.clearAllMocks();
   });
 
