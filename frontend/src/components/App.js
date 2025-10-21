@@ -6,7 +6,6 @@ export class App {
   constructor() {
     this.authService = new AuthService();
     this.authComponent = new AuthComponent(this.handleAuthSuccess.bind(this));
-    this.dashboardComponent = new DashboardComponent(this.rootElement); // インスタンス化
     this.messageDisplay = document.getElementById("message-display");
     this.rootElement = document.getElementById("app-content"); // Target the new content div
     if (!this.rootElement) {
@@ -15,6 +14,7 @@ export class App {
       this.rootElement.id = "app-content";
       document.querySelector("main").appendChild(this.rootElement); // Append to main if missing
     }
+    this.dashboardComponent = new DashboardComponent(this.rootElement); // インスタンス化
 
     this.mainElement = document.querySelector("main");
   }
