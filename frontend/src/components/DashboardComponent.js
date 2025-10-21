@@ -9,16 +9,20 @@ export async function initDashboard(container) {
     message.className = "no-habits-message";
     message.textContent = "習慣がありません";
     container.appendChild(message);
-    return;
+  } else {
+    const ul = document.createElement("ul");
+    habits.forEach((habit) => {
+      const li = document.createElement("li");
+      li.className = "habit-item";
+      li.textContent = habit.name;
+      ul.appendChild(li);
+    });
+
+    container.appendChild(ul);
   }
 
-  const ul = document.createElement("ul");
-  habits.forEach((habit) => {
-    const li = document.createElement("li");
-    li.className = "habit-item";
-    li.textContent = habit.name;
-    ul.appendChild(li);
-  });
-
-  container.appendChild(ul);
+  const createButton = document.createElement("button");
+  createButton.className = "create-habit-button";
+  createButton.textContent = "新しい習慣を作成";
+  container.appendChild(createButton);
 }

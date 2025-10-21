@@ -66,4 +66,39 @@ describe("DashboardComponent", () => {
 
     document.body.removeChild(container);
   });
+
+  test("習慣がない場合、習慣を作成するボタンがあること", async () => {
+    mockGetHabits.mockResolvedValue([]); // No habits, to ensure button is visible
+
+    const container = document.createElement("div");
+    document.body.appendChild(container);
+
+    const { initDashboard } = await import("../DashboardComponent.js");
+    await initDashboard(container);
+
+    const createButton = container.querySelector(".create-habit-button");
+    expect(createButton).not.toBeNull();
+    expect(createButton.textContent).toContain("新しい習慣を作成");
+
+    document.body.removeChild(container);
+  });
+
+  test("習慣がある場合、習慣を作成するボタンがあること", async () => {
+    const mockHabits = [
+      { id: "1", name: "Exercise", type: "boolean", goal: null, unit: null },
+    ];
+    mockGetHabits.mockResolvedValue(mockHabits);
+
+    const container = document.createElement("div");
+    document.body.appendChild(container);
+
+    const { initDashboard } = await import("../DashboardComponent.js");
+    await initDashboard(container);
+
+    const createButton = container.querySelector(".create-habit-button");
+    expect(createButton).not.toBeNull();
+    expect(createButton.textContent).toContain("新しい習慣を作成");
+
+    document.body.removeChild(container);
+  });
 });
