@@ -1,104 +1,147 @@
 import { HabitService } from "../../services/HabitService";
+import { DashboardComponent } from "../DashboardComponent.js";
+import { HabitFormComponent } from "../HabitFormComponent.js";
+
+let mockFormElement; // Declare at a higher scope
+
+jest.mock("../HabitFormComponent.js", () => {
+  return jest.fn().mockImplementation(() => {
+    // Use the variable from the higher scope
+    return {
+      render: jest.fn(() => mockFormElement),
+      handleSubmit: jest.fn(),
+      handleCancel: jest.fn(),
+      // Add other methods that DashboardComponent might call on HabitFormComponent
+    };
+  });
+});
 
 // Mock HabitService class and its methods
 jest.mock("../../services/HabitService", () => ({
   HabitService: jest.fn().mockImplementation(() => ({
     getHabits: jest.fn(),
+    createHabit: jest.fn(),
+    updateHabit: jest.fn(),
   })),
 }));
 
 describe("DashboardComponent", () => {
   let mockGetHabits;
+  let mockCreateHabit;
+  let mockUpdateHabit;
+  let container;
 
   beforeEach(() => {
     // Reset mocks and re-implement getHabits for each test
     HabitService.mockClear();
+    HabitFormComponent.mockClear();
+
     mockGetHabits = jest.fn();
+    mockCreateHabit = jest.fn();
+    mockUpdateHabit = jest.fn();
+
     HabitService.mockImplementation(() => ({
       getHabits: mockGetHabits,
+      createHabit: mockCreateHabit,
+      updateHabit: mockUpdateHabit,
     }));
-  });
 
-  test("習慣を取得して表示できること", async () => {
-    const mockHabits = [
-      { id: "1", name: "Exercise", type: "boolean", goal: null, unit: null },
-      {
-        id: "2",
-        name: "Drink Water",
-        type: "numeric",
-        goal: 8,
-        unit: "glasses",
-      },
-    ];
-    mockGetHabits.mockResolvedValue(mockHabits);
-
-    const container = document.createElement("div");
+    container = document.createElement("div");
     document.body.appendChild(container);
 
-    const { initDashboard } = await import("../DashboardComponent.js");
-    await initDashboard(container);
-
-    expect(mockGetHabits).toHaveBeenCalledTimes(1);
-
-    const habitElements = container.querySelectorAll(".habit-item");
-    expect(habitElements.length).toBe(mockHabits.length);
-
-    expect(habitElements[0].textContent).toContain("Exercise");
-    expect(habitElements[1].textContent).toContain("Drink Water");
-
-    document.body.removeChild(container);
+    // Initialize mockFormElement here
+    mockFormElement = document.createElement("form");
+    mockFormElement.innerHTML = "<p>Habit Form</p>";
   });
 
-  test("習慣が0件の場合、メッセージを表示すること", async () => {
-    mockGetHabits.mockResolvedValue([]); // No habits
-
-    const container = document.createElement("div");
-    document.body.appendChild(container);
-
-    const { initDashboard } = await import("../DashboardComponent.js");
-    await initDashboard(container);
-
-    expect(mockGetHabits).toHaveBeenCalledTimes(1);
-
-    const messageElement = container.querySelector(".no-habits-message");
-    expect(messageElement).not.toBeNull();
-    expect(messageElement.textContent).toContain("習慣がありません");
-
+  afterEach(() => {
     document.body.removeChild(container);
+    jest.clearAllMocks();
   });
 
-  test("習慣がない場合、習慣を作成するボタンがあること", async () => {
-    mockGetHabits.mockResolvedValue([]); // No habits, to ensure button is visible
-
-    const container = document.createElement("div");
-    document.body.appendChild(container);
-
-    const { initDashboard } = await import("../DashboardComponent.js");
-    await initDashboard(container);
-
-    const createButton = container.querySelector(".create-habit-button");
-    expect(createButton).not.toBeNull();
-    expect(createButton.textContent).toContain("新しい習慣を作成");
-
-    document.body.removeChild(container);
+  test("正しく初期化されること", () => {
+    const dashboard = new DashboardComponent(container);
+    expect(dashboard.container).toBe(container);
+    expect(dashboard.habits).toEqual([]);
+    expect(dashboard.isFormVisible).toBe(false);
+    expect(dashboard.currentEditedHabit).toBeNull();
   });
 
-  test("習慣がある場合、習慣を作成するボタンがあること", async () => {
+  test("init() が習慣をロードし、レンダリングを呼び出すこと", async () => {
+    mockGetHabits.mockResolvedValue([]);
+    const dashboard = new DashboardComponent(container);
+    const renderSpy = jest.spyOn(dashboard, "render");
+    const loadHabitsSpy = jest.spyOn(dashboard, "loadHabits");
+
+    await dashboard.init();
+
+    expect(loadHabitsSpy).toHaveBeenCalledTimes(1);
+    expect(renderSpy).toHaveBeenCalledTimes(1);
+    renderSpy.mockRestore();
+    loadHabitsSpy.mockRestore();
+  });
+
+  test("習慣がない場合、メッセージと作成ボタンを表示すること", async () => {
+    mockGetHabits.mockResolvedValue([]);
+    const dashboard = new DashboardComponent(container);
+    await dashboard.init();
+
+    expect(container.querySelector(".no-habits-message")).not.toBeNull();
+    expect(container.querySelector(".no-habits-message").textContent).toContain(
+      "習慣がありません"
+    );
+    expect(container.querySelector(".create-habit-button")).not.toBeNull();
+  });
+
+  test("習慣がある場合、リストと作成ボタンを表示すること", async () => {
     const mockHabits = [
       { id: "1", name: "Exercise", type: "boolean", goal: null, unit: null },
     ];
     mockGetHabits.mockResolvedValue(mockHabits);
+    const dashboard = new DashboardComponent(container);
+    await dashboard.init();
 
-    const container = document.createElement("div");
-    document.body.appendChild(container);
+    expect(container.querySelector("ul")).not.toBeNull();
+    expect(container.querySelectorAll(".habit-item").length).toBe(1);
+    expect(container.querySelector(".habit-item").textContent).toContain(
+      "Exercise"
+    );
+    expect(container.querySelector(".create-habit-button")).not.toBeNull();
+  });
 
-    const { initDashboard } = await import("../DashboardComponent.js");
-    await initDashboard(container);
+  test("「新しい習慣を作成」ボタンがクリックされたときにフォームが表示されること", async () => {
+    mockGetHabits.mockResolvedValue([]);
+    const dashboard = new DashboardComponent(container);
+    await dashboard.init();
 
     const createButton = container.querySelector(".create-habit-button");
-    expect(createButton).not.toBeNull();
-    expect(createButton.textContent).toContain("新しい習慣を作成");
+    createButton.click();
 
-    document.body.removeChild(container);
+    expect(dashboard.isFormVisible).toBe(true);
+    expect(container.querySelector("p").textContent).toBe("Habit Form");
+    expect(HabitFormComponent).toHaveBeenCalledTimes(1);
+    expect(HabitFormComponent).toHaveBeenCalledWith(
+      null,
+      expect.any(Function),
+      expect.any(Function)
+    );
+  });
+
+  test("フォームがキャンセルされたときにダッシュボードが再表示されること", async () => {
+    mockGetHabits.mockResolvedValue([]);
+    const dashboard = new DashboardComponent(container);
+    await dashboard.init();
+
+    const createButton = container.querySelector(".create-habit-button");
+    createButton.click(); // Open form
+
+    expect(dashboard.isFormVisible).toBe(true);
+    // Simulate calling the onCancel callback passed to HabitFormComponent
+    const habitFormInstance = HabitFormComponent.mock.results[0].value;
+    const onCancelCallback = HabitFormComponent.mock.calls[0][2];
+    onCancelCallback();
+
+    expect(dashboard.isFormVisible).toBe(false);
+    expect(container.querySelector(".no-habits-message")).not.toBeNull(); // Dashboard content should be back
   });
 });

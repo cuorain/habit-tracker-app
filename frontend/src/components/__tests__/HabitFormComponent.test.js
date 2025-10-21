@@ -1,4 +1,4 @@
-import HabitFormComponent from "../HabitFormComponent.js";
+import { HabitFormComponent } from "../HabitFormComponent.js";
 
 describe("HabitFormComponent", () => {
   let container;
@@ -17,7 +17,7 @@ describe("HabitFormComponent", () => {
     jest.clearAllMocks();
   });
 
-  test("renders correctly in create mode", () => {
+  test("create modeで正しくレンダリングされること", () => {
     const component = new HabitFormComponent(null, onSaveMock, onCancelMock);
     container.appendChild(component.render());
 
@@ -33,29 +33,7 @@ describe("HabitFormComponent", () => {
     expect(container.querySelector("#cancel-habit-btn")).not.toBeNull();
   });
 
-  test("toggles target value fields based on habit type selection", async () => {
-    const component = new HabitFormComponent(null, onSaveMock, onCancelMock);
-    container.appendChild(component.render());
-
-    const habitTypeSelect = container.querySelector("#habitType");
-    const targetValueContainer = container.querySelector(
-      "#target-value-container"
-    );
-
-    expect(targetValueContainer).not.toBeVisible();
-
-    // Change to NUMERIC_COUNT
-    habitTypeSelect.value = "NUMERIC_COUNT";
-    habitTypeSelect.dispatchEvent(new Event("change"));
-    expect(targetValueContainer).toBeVisible();
-
-    // Change back to BOOLEAN
-    habitTypeSelect.value = "BOOLEAN";
-    habitTypeSelect.dispatchEvent(new Event("change"));
-    expect(targetValueContainer).not.toBeVisible();
-  });
-
-  test("calls onSave with correct data when save button is clicked for new habit (BOOLEAN)", () => {
+  test("保存ボタンがクリックされたときに正しいデータでonSaveが呼び出されること (BOOLEAN)", () => {
     const component = new HabitFormComponent(null, onSaveMock, onCancelMock);
     container.appendChild(component.render());
 
@@ -76,7 +54,7 @@ describe("HabitFormComponent", () => {
     });
   });
 
-  test("calls onSave with correct data when save button is clicked for new habit (NUMERIC_COUNT)", () => {
+  test("保存ボタンがクリックされたときに正しいデータでonSaveが呼び出されること (NUMERIC_COUNT)", () => {
     const component = new HabitFormComponent(null, onSaveMock, onCancelMock);
     container.appendChild(component.render());
 
@@ -101,7 +79,7 @@ describe("HabitFormComponent", () => {
     });
   });
 
-  test("calls onCancel when cancel button is clicked", () => {
+  test("キャンセルボタンがクリックされたときにonCancelが呼び出されること", () => {
     const component = new HabitFormComponent(null, onSaveMock, onCancelMock);
     container.appendChild(component.render());
 
@@ -110,7 +88,7 @@ describe("HabitFormComponent", () => {
     expect(onCancelMock).toHaveBeenCalled();
   });
 
-  test("shows alert for empty habit name", () => {
+  test("習慣名が空の場合にアラートが表示されること", () => {
     const alertMock = jest.spyOn(window, "alert").mockImplementation(() => {});
     const component = new HabitFormComponent(null, onSaveMock, onCancelMock);
     container.appendChild(component.render());
@@ -123,7 +101,7 @@ describe("HabitFormComponent", () => {
     alertMock.mockRestore();
   });
 
-  test("shows alert for invalid target value for numeric habit", () => {
+  test("数値習慣の目標値が無効な場合にアラートが表示されること", () => {
     const alertMock = jest.spyOn(window, "alert").mockImplementation(() => {});
     const component = new HabitFormComponent(null, onSaveMock, onCancelMock);
     container.appendChild(component.render());

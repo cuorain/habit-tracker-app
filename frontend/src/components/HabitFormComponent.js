@@ -1,12 +1,10 @@
-class HabitFormComponent {
+export class HabitFormComponent {
   constructor(habit = null, onSave, onCancel) {
     this.habit = habit;
     this.isEdit = !!habit;
     this.onSave = onSave;
     this.onCancel = onCancel;
     this.form = this.createForm();
-    this.elements = {};
-    this.setupEventListeners();
   }
 
   createForm() {
@@ -122,6 +120,7 @@ class HabitFormComponent {
 
     this.updateElementsReferences();
     this.toggleTargetValueFields(); // Initial toggle based on habit type
+    this.setupEventListeners(); // Moved here
 
     return this.form;
   }
@@ -214,11 +213,25 @@ class HabitFormComponent {
         this.toggleTargetValueFields();
       }
     });
-    this.form.addEventListener("click", this.handleSubmit.bind(this));
-    this.elements.cancelButton?.addEventListener(
-      "click",
-      this.handleCancel.bind(this)
-    );
+    // handleSubmitがクリックイベントで実行される場合、form全体ではなく、saveButtonに直接イベントリスナーを設定する方が望ましい
+    // また、submitイベントを使うことでEnterキーでの送信も扱える
+    // this.form.addEventListener("click", this.handleSubmit.bind(this)); // この行は削除または変更
+
+    // saveButtonに直接イベントリスナーを設定
+    if (this.elements.saveButton) {
+      this.elements.saveButton.addEventListener(
+        "click",
+        this.handleSubmit.bind(this)
+      );
+    }
+
+    if (this.elements.cancelButton) {
+      // オプショナルチェイニングを削除したのでnullチェックを追加
+      this.elements.cancelButton.addEventListener(
+        "click",
+        this.handleCancel.bind(this)
+      );
+    }
   }
 
   toggleTargetValueFields() {
