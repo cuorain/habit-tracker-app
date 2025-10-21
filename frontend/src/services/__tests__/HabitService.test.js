@@ -48,6 +48,22 @@ describe("HabitService", () => {
           });
         }
       }
+
+      if (
+        url === `${process.env.VITE_API_URL}/api/v1/habits` &&
+        options.method === "POST"
+      ) {
+        if (
+          options.headers.Authorization === `Bearer ${mockToken}` &&
+          JSON.parse(options.body).name === "New Habit"
+        ) {
+          return Promise.resolve({
+            ok: true,
+            json: () =>
+              Promise.resolve({ id: "3", name: "New Habit", type: "BOOLEAN" }),
+          });
+        }
+      }
       return Promise.reject(new Error("Unknown API call"));
     });
   });
@@ -107,5 +123,48 @@ describe("HabitService", () => {
     const HabitServiceClass = HabitServiceModule.HabitService;
     const habitServiceInstance = new HabitServiceClass();
     expect(habitServiceInstance.getHabits).toBeInstanceOf(Function);
+  });
+
+  it("習慣を正常に作成できること", async () => {
+    const newHabit = { name: "New Habit", type: "BOOLEAN" };
+    const createdHabit = await habitService.createHabit(newHabit);
+    expect(fetch).toHaveBeenCalledWith(
+      `${process.env.VITE_API_URL}/api/v1/habits`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${mockToken}`,
+        },
+        body: JSON.stringify(newHabit),
+      }
+    );
+    expect(createdHabit).toEqual({
+      id: "3",
+      name: "New Habit",
+      type: "BOOLEAN",
+    });
+  });
+
+  it("習慣の作成に失敗した場合、エラーをスローすること", async () => {
+    global.fetch.mockImplementationOnce(() =>
+      Promise.resolve({
+        ok: false,
+        json: () => Promise.resolve({ message: "習慣の作成に失敗しました。" }),
+      })
+    );
+
+    const newHabit = { name: "Failing Habit", type: "BOOLEAN" };
+    await expect(habitService.createHabit(newHabit)).rejects.toThrow(
+      "習慣の作成に失敗しました。"
+    );
+  });
+
+  it("createHabitでトークンが存在しない場合、エラーをスローすること", async () => {
+    localStorage.removeItem("token");
+    const newHabit = { name: "Habit without token", type: "BOOLEAN" };
+    await expect(habitService.createHabit(newHabit)).rejects.toThrow(
+      "認証トークンが見つかりません。"
+    );
   });
 });
