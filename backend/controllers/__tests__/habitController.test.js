@@ -199,4 +199,15 @@ describe("createHabit", () => {
         "habitTypeはBOOLEAN, NUMERIC_DURATION, NUMERIC_COUNTのいずれかである必要があります。",
     });
   });
+
+  it("認証情報（req.user）がない場合、401エラーを返すこと", async () => {
+    delete req.user; // req.userを削除して、認証情報がない状態をシミュレート
+
+    await createHabit(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(401);
+    expect(res.json).toHaveBeenCalledWith({
+      message: "認証されていません。",
+    });
+  });
 });

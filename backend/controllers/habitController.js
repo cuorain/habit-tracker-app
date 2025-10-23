@@ -39,6 +39,11 @@ export const getHabits = async (req, res) => {
 
 export const createHabit = async (req, res) => {
   try {
+    // 認証チェック
+    if (!req.user) {
+      return res.status(401).json({ message: "認証されていません。" });
+    }
+
     const { Habit } = db;
     const userId = req.user.id;
     const {
@@ -67,33 +72,27 @@ export const createHabit = async (req, res) => {
     // habit_typeの検証
     const allowedHabitTypes = ["BOOLEAN", "NUMERIC_DURATION", "NUMERIC_COUNT"];
     if (!allowedHabitTypes.includes(habit_type)) {
-      return res
-        .status(400)
-        .json({
-          message:
-            "habitTypeはBOOLEAN, NUMERIC_DURATION, NUMERIC_COUNTのいずれかである必要があります。",
-        });
+      return res.status(400).json({
+        message:
+          "habitTypeはBOOLEAN, NUMERIC_DURATION, NUMERIC_COUNTのいずれかである必要があります。",
+      });
     }
 
     // habit_typeに応じたバリデーション
     if (habit_type === "BOOLEAN") {
       if (target_value !== null || target_unit !== null) {
-        return res
-          .status(400)
-          .json({
-            message:
-              "BOOLEANタイプの習慣にはtargetValueとtargetUnitは設定できません。",
-          });
+        return res.status(400).json({
+          message:
+            "BOOLEANタイプの習慣にはtargetValueとtargetUnitは設定できません。",
+        });
       }
     } else {
       // NUMERIC_DURATION or NUMERIC_COUNT
       if (target_value === null || target_unit === null) {
-        return res
-          .status(400)
-          .json({
-            message:
-              "NUMERIC_DURATIONまたはNUMERIC_COUNTタイプの習慣にはtargetValueとtargetUnitが必要です。",
-          });
+        return res.status(400).json({
+          message:
+            "NUMERIC_DURATIONまたはNUMERIC_COUNTタイプの習慣にはtargetValueとtargetUnitが必要です。",
+        });
       }
       if (typeof target_value !== "number" || target_value < 0) {
         return res
@@ -102,12 +101,10 @@ export const createHabit = async (req, res) => {
       }
       const allowedTargetUnits = ["hours", "minutes", "reps", "times"];
       if (!allowedTargetUnits.includes(target_unit)) {
-        return res
-          .status(400)
-          .json({
-            message:
-              "targetUnitはhours, minutes, reps, timesのいずれかである必要があります。",
-          });
+        return res.status(400).json({
+          message:
+            "targetUnitはhours, minutes, reps, timesのいずれかである必要があります。",
+        });
       }
     }
 
