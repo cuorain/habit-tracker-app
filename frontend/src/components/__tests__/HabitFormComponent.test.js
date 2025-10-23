@@ -41,7 +41,7 @@ describe("HabitFormComponent", () => {
     container.querySelector("#description").value = "Read 30 minutes daily";
     container.querySelector("#category").value = "Learning";
     container.querySelector("#habitType").value = "BOOLEAN";
-    container.querySelector("#targetFrequency").value = "毎日";
+    container.querySelector("#targetFrequencyId").value = "1";
 
     container.querySelector("#save-habit-btn").click();
 
@@ -50,7 +50,7 @@ describe("HabitFormComponent", () => {
       description: "Read 30 minutes daily",
       category: "Learning",
       habitType: "BOOLEAN",
-      targetFrequency: "毎日",
+      targetFrequencyId: "1",
     });
   });
 
@@ -64,7 +64,7 @@ describe("HabitFormComponent", () => {
     container.querySelector("#habitType").value = "NUMERIC_COUNT";
     container.querySelector("#targetValue").value = "100";
     container.querySelector("#targetUnit").value = "reps";
-    container.querySelector("#targetFrequency").value = "毎日";
+    container.querySelector("#targetFrequencyId").value = "1";
 
     container.querySelector("#save-habit-btn").click();
 
@@ -75,7 +75,7 @@ describe("HabitFormComponent", () => {
       habitType: "NUMERIC_COUNT",
       targetValue: 100,
       targetUnit: "reps",
-      targetFrequency: "毎日",
+      targetFrequencyId: "1",
     });
   });
 

@@ -114,10 +114,10 @@ export class HabitFormComponent {
     // Target Frequency (Placeholder for now)
     this.form.appendChild(
       this.createInputField(
-        "targetFrequency",
+        "targetFrequencyId",
         "text",
         "目標頻度 (例: 毎日, 週3回)",
-        this.habit?.targetFrequency || ""
+        this.habit?.targetFrequencyId || ""
       )
     );
 
@@ -214,7 +214,7 @@ export class HabitFormComponent {
       targetValue: this.form.querySelector("#targetValue"),
       targetUnit: this.form.querySelector("#targetUnit"),
       targetValueContainer: this.form.querySelector("#target-value-container"),
-      targetFrequency: this.form.querySelector("#targetFrequency"),
+      targetFrequencyId: this.form.querySelector("#targetFrequencyId"),
       saveButton: this.form.querySelector("#save-habit-btn"),
       cancelButton: this.form.querySelector("#cancel-habit-btn"),
     };
@@ -266,7 +266,7 @@ export class HabitFormComponent {
           description: this.elements.description.value,
           category: this.elements.category.value,
           habitType: this.elements.habitType.value,
-          targetFrequency: this.elements.targetFrequency.value,
+          targetFrequencyId: this.elements.targetFrequencyId.value,
         };
 
         if (
