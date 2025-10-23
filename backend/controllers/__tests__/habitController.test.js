@@ -1,17 +1,59 @@
 import { createHabit } from "../habitController";
-import { db } from "../../models/index.js";
 import { jest } from "@jest/globals";
+import { Sequelize, DataTypes } from "sequelize";
 
-jest.mock("../../models/index.js", () => ({
-  db: {
-    Habit: {
-      create: jest.fn(),
-    },
-  },
-}));
+// モックされたdbとsequelizeインスタンスをJestのモックの外で定義
+let mockSequelizeInstance;
+let mockDb;
+
+jest.mock("../../models/index.js", () => {
+  const actualSequelize = jest.requireActual("sequelize");
+  mockSequelizeInstance = new actualSequelize.Sequelize("sqlite::memory:", {
+    logging: false,
+  });
+  mockDb = {};
+
+  // 実際のモデルファイルを読み込み、モックSequelizeインスタンスにアタッチ
+  const User = jest
+    .requireActual("../../models/user.js")
+    .User(mockSequelizeInstance, DataTypes);
+  const Habit = jest
+    .requireActual("../../models/habit.js")
+    .Habit(mockSequelizeInstance, DataTypes);
+
+  mockDb.User = User;
+  mockDb.Habit = Habit;
+  mockDb.sequelize = mockSequelizeInstance;
+  mockDb.Sequelize = actualSequelize.Sequelize;
+
+  // 関連付けも実行
+  if (mockDb.User.associate) mockDb.User.associate(mockDb);
+  if (mockDb.Habit.associate) mockDb.Habit.associate(mockDb);
+
+  return {
+    db: mockDb,
+    sequelize: mockSequelizeInstance,
+    Sequelize: actualSequelize.Sequelize,
+  };
+});
+
+const { db, sequelize } = await import("../../models/index.js");
 
 describe("createHabit", () => {
   let req, res;
+
+  beforeAll(async () => {
+    // テスト環境であることを明示
+    process.env.NODE_ENV = "test";
+    await sequelize.sync({ force: true }); // テストごとにデータベースをクリーンにする
+
+    // Jestモックのdb.Habit.createを直接参照してモックをセットアップ
+    db.Habit.create = jest.fn();
+  });
+
+  afterAll(async () => {
+    await sequelize.close(); // テスト後にデータベース接続をクローズ
+  });
 
   beforeEach(() => {
     req = {
@@ -30,15 +72,12 @@ describe("createHabit", () => {
       status: jest.fn().mockReturnThis(),
       json: jest.fn(),
     };
-  });
-
-  afterEach(() => {
-    jest.clearAllMocks();
+    jest.clearAllMocks(); // 各テストの前にモックをクリア
   });
 
   it("認証済みユーザーが習慣を作成できること", async () => {
     const newHabit = { id: 1, ...req.body, user_id: req.user.id };
-    db.Habit.create = jest.fn().mockResolvedValue(newHabit);
+    db.Habit.create.mockResolvedValue(newHabit);
 
     await createHabit(req, res);
 
@@ -68,7 +107,7 @@ describe("createHabit", () => {
   });
 
   it("データベースエラーが発生した場合、500エラーを返すこと", async () => {
-    db.Habit.create = jest.fn().mockRejectedValue(new Error("Database error"));
+    db.Habit.create.mockRejectedValue(new Error("Database error"));
 
     await createHabit(req, res);
 

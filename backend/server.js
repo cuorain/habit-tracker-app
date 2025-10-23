@@ -18,12 +18,16 @@ import { authRoutes } from "./routes/auth.js";
 import { habitRoutes } from "./routes/habit.js";
 // データベースモデルをインポート
 import { db, sequelize } from "./models/index.js";
+import { convertKeysToSnakeCase } from "./middleware/caseConverterMiddleware.js";
+
 // Expressアプリケーションとデータベース同期を初期化する関数
 const initializeApp = async () => {
   const app = express();
   // グローバルミドルウェア
   // JSONリクエストボディをパースするためのミドルウェア
   app.use(express.json());
+  // キャメルケースのJSONキーをスネークケースに変換するミドルウェアを追加
+  app.use(convertKeysToSnakeCase);
   // CORSを有効にするミドルウェア。特定のオリジンからのリクエストのみを許可。
   app.use(cors({ origin: "http://localhost:5173" }));
 
