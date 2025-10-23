@@ -117,4 +117,42 @@ describe("HabitFormComponent", () => {
     expect(onSaveMock).not.toHaveBeenCalled();
     alertMock.mockRestore();
   });
+
+  test("習慣が正常に作成された際に成功メッセージが表示されること", async () => {
+    const component = new HabitFormComponent(null, onSaveMock, onCancelMock);
+    container.appendChild(component.render());
+
+    const successMessage = "習慣が正常に作成されました。";
+    onSaveMock.mockResolvedValue({ message: successMessage });
+
+    container.querySelector("#habitName").value = "新しい習慣";
+    container.querySelector("#save-habit-btn").click();
+
+    // Wait for the async operation to complete and message to be displayed
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(container.querySelector(".success-message")).not.toBeNull();
+    expect(container.querySelector(".success-message").textContent).toBe(
+      successMessage
+    );
+  });
+
+  test("習慣作成に失敗した際にエラーメッセージが表示されること", async () => {
+    const component = new HabitFormComponent(null, onSaveMock, onCancelMock);
+    container.appendChild(component.render());
+
+    const errorMessage = "習慣の作成に失敗しました。";
+    onSaveMock.mockRejectedValue(new Error(errorMessage));
+
+    container.querySelector("#habitName").value = "失敗する習慣";
+    container.querySelector("#save-habit-btn").click();
+
+    // Wait for the async operation to complete and message to be displayed
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(container.querySelector(".error-message")).not.toBeNull();
+    expect(container.querySelector(".error-message").textContent).toBe(
+      errorMessage
+    );
+  });
 });

@@ -5,6 +5,8 @@ export class HabitFormComponent {
     this.onSave = onSave;
     this.onCancel = onCancel;
     this.form = this.createForm();
+    this.message = null;
+    this.messageType = null;
   }
 
   createForm() {
@@ -21,6 +23,17 @@ export class HabitFormComponent {
     title.className = "habit-form-title";
     title.textContent = this.isEdit ? "習慣を編集" : "新しい習慣を作成";
     this.form.appendChild(title);
+
+    // Message display area
+    const messageContainer = document.createElement("div");
+    messageContainer.id = "form-message-container";
+    if (this.message) {
+      const messageElement = document.createElement("p");
+      messageElement.className = `form-message ${this.messageType}-message`;
+      messageElement.textContent = this.message;
+      messageContainer.appendChild(messageElement);
+    }
+    this.form.appendChild(messageContainer);
 
     // Habit Name
     this.form.appendChild(
@@ -243,9 +256,10 @@ export class HabitFormComponent {
     }
   }
 
-  handleSubmit(event) {
+  async handleSubmit(event) {
     if (event.target.id === "save-habit-btn") {
       event.preventDefault();
+      this.clearMessages(); // Clear any existing messages
       if (this.validateForm()) {
         const formData = {
           name: this.elements.habitName.value,
@@ -262,9 +276,33 @@ export class HabitFormComponent {
           formData.targetUnit = this.elements.targetUnit.value;
         }
 
-        this.onSave(formData);
+        try {
+          const response = await this.onSave(formData);
+          this.showMessage(
+            response.message || "習慣が正常に保存されました。",
+            "success"
+          );
+        } catch (error) {
+          this.showMessage(
+            error.message || "習慣の保存に失敗しました。",
+            "error"
+          );
+        } finally {
+          // Re-render to display the message
+          this.render();
+        }
       }
     }
+  }
+
+  showMessage(message, type) {
+    this.message = message;
+    this.messageType = type;
+  }
+
+  clearMessages() {
+    this.message = null;
+    this.messageType = null;
   }
 
   handleCancel() {
