@@ -11,7 +11,7 @@ import { db } from "../models/index.js";
  */
 export const getHabits = async (req, res) => {
   try {
-    const { Habit } = db;
+    const { Habit, FrequencyOption } = db; // FrequencyOptionモデルを追加
     const userId = req.user.id; // 認証されたユーザーのID
 
     const habits = await Habit.findAll({
@@ -24,13 +24,34 @@ export const getHabits = async (req, res) => {
         "habit_type",
         "target_value",
         "target_unit",
-        "target_frequency",
+        "target_frequency_id", // target_frequency_idに変更
         "created_at",
         "updated_at",
       ],
+      include: [
+        {
+          model: FrequencyOption,
+          attributes: ["name"], // FrequencyOptionの名前のみを取得
+        },
+      ],
     });
 
-    res.status(200).json(habits);
+    // レスポンスデータを整形
+    const formattedHabits = habits.map((habit) => ({
+      id: habit.id,
+      name: habit.name,
+      description: habit.description,
+      category: habit.category,
+      habit_type: habit.habit_type,
+      target_value: habit.target_value,
+      target_unit: habit.target_unit,
+      target_frequency_id: habit.target_frequency_id,
+      target_frequency_name: habit.FrequencyOption.name, // FrequencyOptionの名前を追加
+      created_at: habit.created_at,
+      updated_at: habit.updated_at,
+    }));
+
+    res.status(200).json(formattedHabits);
   } catch (error) {
     console.error("習慣の取得中にエラーが発生しました:", error);
     res.status(500).json({ message: "サーバーエラーが発生しました。" });
@@ -53,7 +74,7 @@ export const createHabit = async (req, res) => {
       habit_type,
       target_value,
       target_unit,
-      target_frequency,
+      target_frequency_id, // target_frequencyをtarget_frequency_idに変更
     } = req.body;
 
     // 必須フィールドの検証 (habit_typeに依存しないもの)
@@ -62,12 +83,29 @@ export const createHabit = async (req, res) => {
       !description ||
       !category ||
       !habit_type ||
-      target_frequency == null || // Checks for both null and undefined
-      (typeof target_frequency === "string" && target_frequency.trim() === "") // Checks for empty string if it's a string
+      target_frequency_id == null || // target_frequency_idに変更
+      (typeof target_frequency_id === "string" &&
+        target_frequency_id.trim() === "") // target_frequency_idに変更
     ) {
       return res
         .status(400)
         .json({ message: "必須フィールドが不足しています。" });
+    }
+
+    // target_frequency_idが数値であることを確認
+    if (typeof target_frequency_id !== "number" || target_frequency_id <= 0) {
+      return res.status(400).json({
+        message: "targetFrequencyIdは1以上の数値である必要があります。",
+      });
+    }
+
+    // target_frequency_idがfrequency_optionsテーブルに存在するか確認
+    const { FrequencyOption } = db;
+    const frequencyOption = await FrequencyOption.findByPk(target_frequency_id);
+    if (!frequencyOption) {
+      return res.status(400).json({
+        message: "指定されたtargetFrequencyIdは存在しません。",
+      });
     }
 
     // habit_typeの検証
@@ -126,7 +164,7 @@ export const createHabit = async (req, res) => {
       habit_type,
       target_value,
       target_unit,
-      target_frequency,
+      target_frequency_id, // target_frequencyをtarget_frequency_idに変更
       user_id: userId,
     });
 
