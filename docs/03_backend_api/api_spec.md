@@ -1,26 +1,31 @@
-# API仕様書
+# API 仕様書
 
 ## 概要
-習慣トラッカーアプリケーションのREST API仕様を定義します。
 
-## ベースURL
+習慣トラッカーアプリケーションの REST API 仕様を定義します。
+
+## ベース URL
+
 ```
 http://localhost:8080/api/v1
 ```
 
 ## 認証
+
 JWT (JSON Web Token) を使用した認証方式を採用します。
 
 ### 認証ヘッダー
+
 ```
 Authorization: Bearer <token>
 ```
 
-## APIエンドポイント
+## API エンドポイント
 
 ### 1. ユーザー管理
 
 #### ユーザー登録
+
 - **POST** `/auth/register`
 - **Request Body:**
   ```json
@@ -42,6 +47,7 @@ Authorization: Bearer <token>
   - サーバーエラー (500 Internal Server Error): `{"message": "サーバーエラーが発生しました。"}`
 
 #### ユーザーログイン
+
 - **POST** `/auth/login`
 - **Request Body:**
   ```json
@@ -65,6 +71,7 @@ Authorization: Bearer <token>
 ### 2. 習慣管理
 
 #### 習慣一覧取得
+
 - **GET** `/habits`
 - **Headers:** `Authorization: Bearer <token>`
 - **Response:**
@@ -78,7 +85,8 @@ Authorization: Bearer <token>
       "habitType": "string",
       "targetValue": "number",
       "targetUnit": "string",
-      "targetFrequency": "number",
+      "targetFrequencyId": "number",
+      "targetFrequencyName": "string",
       "createdAt": "string",
       "updatedAt": "string"
     }
@@ -86,6 +94,7 @@ Authorization: Bearer <token>
   ```
 
 #### 習慣作成
+
 - **POST** `/habits`
 - **Headers:** `Authorization: Bearer <token>`
 - **Request Body:**
@@ -97,13 +106,14 @@ Authorization: Bearer <token>
     "habitType": "string",
     "targetValue": "number",
     "targetUnit": "string",
-    "targetFrequency": "number"
+    "targetFrequencyId": "number"
   }
   ```
-- **バリデーション**: 
+- **バリデーション**:
+  - `targetFrequencyId`: 必須。有効な頻度オプションの ID であること。
   - `habitType`: 必須 (`BOOLEAN`, `NUMERIC_DURATION`, `NUMERIC_COUNT` のいずれか)。
   - `habitType` が `BOOLEAN` の場合、`targetValue` と `targetUnit` は `NULL` であること。
-  - `habitType` が `NUMERIC_DURATION` または `NUMERIC_COUNT` の場合、`targetValue` と `targetUnit` は必須であり、`targetValue` は0以上の数値であること。
+  - `habitType` が `NUMERIC_DURATION` または `NUMERIC_COUNT` の場合、`targetValue` と `targetUnit` は必須であり、`targetValue` は 0 以上の数値であること。
   - `targetUnit`: `hours`, `minutes`, `reps`, `times` のいずれかであること（`habitType`が数値型の場合）。
 - **Response:**
   ```json
@@ -115,13 +125,15 @@ Authorization: Bearer <token>
     "habitType": "string",
     "targetValue": "number",
     "targetUnit": "string",
-    "targetFrequency": "number",
+    "targetFrequencyId": "number",
+    "targetFrequencyName": "string",
     "createdAt": "string",
     "updatedAt": "string"
   }
   ```
 
 #### 習慣更新
+
 - **PUT** `/habits/{id}`
 - **Headers:** `Authorization: Bearer <token>`
 - **Request Body:**
@@ -133,22 +145,24 @@ Authorization: Bearer <token>
     "habitType": "string",
     "targetValue": "number",
     "targetUnit": "string",
-    "targetFrequency": "number"
+    "targetFrequencyId": "number"
   }
   ```
-- **バリデーション**: 
+- **バリデーション**:
   - `habitType`: 必須 (`BOOLEAN`, `NUMERIC_DURATION`, `NUMERIC_COUNT` のいずれか)。
   - `habitType` が `BOOLEAN` の場合、`targetValue` と `targetUnit` は `NULL` であること。
-  - `habitType` が `NUMERIC_DURATION` または `NUMERIC_COUNT` の場合、`targetValue` と `targetUnit` は必須であり、`targetValue` は0以上の数値であること。
+  - `habitType` が `NUMERIC_DURATION` または `NUMERIC_COUNT` の場合、`targetValue` と `targetUnit` は必須であり、`targetValue` は 0 以上の数値であること。
   - `targetUnit`: `hours`, `minutes`, `reps`, `times` のいずれかであること（`habitType`が数値型の場合）。
 
 #### 習慣削除
+
 - **DELETE** `/habits/{id}`
 - **Headers:** `Authorization: Bearer <token>`
 
 ### 3. 進捗記録
 
 #### 進捗記録
+
 - **POST** `/habits/{id}/progress`
 - **Headers:** `Authorization: Bearer <token>`
 - **Request Body:**
@@ -160,10 +174,10 @@ Authorization: Bearer <token>
     "notes": "string"
   }
   ```
-- **バリデーション**: 
-  - `numericValue`: 
+- **バリデーション**:
+  - `numericValue`:
     - 関連する習慣の `habitType` が `BOOLEAN` の場合、`numericValue` は `NULL` であること。
-    - 関連する習慣の `habitType` が `NUMERIC_DURATION` または `NUMERIC_COUNT` の場合、`numericValue` は必須であり、0以上の数値であること。
+    - 関連する習慣の `habitType` が `NUMERIC_DURATION` または `NUMERIC_COUNT` の場合、`numericValue` は必須であり、0 以上の数値であること。
 - **Response:**
   ```json
   [
@@ -179,38 +193,66 @@ Authorization: Bearer <token>
   ]
   ```
 
-### 4. 統計・レポート
+### 4. 頻度オプション管理
 
-#### 習慣統計取得
-- **GET** `/habits/{id}/stats`
+#### 頻度オプション一覧取得
+
+- **GET** `/frequency-options`
 - **Headers:** `Authorization: Bearer <token>`
-- **Query Parameters:**
-  - `period`: 期間 (week, month, year)
+- **Response:**
+  ```json
+  [
+    {
+      "id": "number",
+      "name": "string",
+      "description": "string",
+      "isDefault": "boolean"
+    }
+  ]
+  ```
+
+#### 頻度オプション作成
+
+- **POST** `/frequency-options`
+- **Headers:** `Authorization: Bearer <token>`
+- **Request Body:**
+  ```json
+  {
+    "name": "string",
+    "description": "string"
+  }
+  ```
+- **バリデーション**:
+  - `name`: 必須。一意であること。
 - **Response:**
   ```json
   {
-    "totalDays": "number",
-    "completedDays": "number",
-    "completionRate": "number",
-    "streak": "number",
-    "longestStreak": "number"
+    "id": "number",
+    "name": "string",
+    "description": "string",
+    "isDefault": "boolean"
   }
   ```
 
-## エラーレスポンス
-```json
-{
-  "error": "string",
-  "message": "string",
-  "timestamp": "string"
-}
-```
+#### 頻度オプション更新
 
-## HTTPステータスコード
-- `200`: 成功
-- `201`: 作成成功
-- `400`: バリデーションエラー
-- `401`: 認証エラー
-- `403`: 認可エラー
-- `404`: リソースが見つからない
-- `500`: サーバーエラー
+- **PUT** `/frequency-options/{id}`
+- **Headers:** `Authorization: Bearer <token>`
+- **Request Body:**
+  ```json
+  {
+    "name": "string",
+    "description": "string"
+  }
+  ```
+- **バリデーション**:
+  - `name`: 必須。一意であること。
+
+#### 頻度オプション削除
+
+- **DELETE** `/frequency-options/{id}`
+- **Headers:** `Authorization: Bearer <token>`
+
+### 5. 統計・レポート
+
+#### 習慣統計取得
