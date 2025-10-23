@@ -62,7 +62,8 @@ export const createHabit = async (req, res) => {
       !description ||
       !category ||
       !habit_type ||
-      !target_frequency
+      target_frequency == null || // Checks for both null and undefined
+      (typeof target_frequency === "string" && target_frequency.trim() === "") // Checks for empty string if it's a string
     ) {
       return res
         .status(400)
@@ -80,7 +81,12 @@ export const createHabit = async (req, res) => {
 
     // habit_typeに応じたバリデーション
     if (habit_type === "BOOLEAN") {
-      if (target_value !== null || target_unit !== null) {
+      if (
+        (target_value != null &&
+          !(typeof target_value === "string" && target_value.trim() === "")) ||
+        (target_unit != null &&
+          !(typeof target_unit === "string" && target_unit.trim() === ""))
+      ) {
         return res.status(400).json({
           message:
             "BOOLEANタイプの習慣にはtargetValueとtargetUnitは設定できません。",
@@ -88,7 +94,12 @@ export const createHabit = async (req, res) => {
       }
     } else {
       // NUMERIC_DURATION or NUMERIC_COUNT
-      if (target_value === null || target_unit === null) {
+      if (
+        target_value == null ||
+        (typeof target_value === "string" && target_value.trim() === "") ||
+        target_unit == null ||
+        (typeof target_unit === "string" && target_unit.trim() === "")
+      ) {
         return res.status(400).json({
           message:
             "NUMERIC_DURATIONまたはNUMERIC_COUNTタイプの習慣にはtargetValueとtargetUnitが必要です。",

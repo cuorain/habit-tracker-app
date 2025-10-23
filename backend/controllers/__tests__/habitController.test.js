@@ -106,6 +106,24 @@ describe("createHabit", () => {
     });
   });
 
+  it("target_frequencyがundefinedの場合、400エラーを返すこと", async () => {
+    delete req.body.target_frequency;
+    await createHabit(req, res);
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({
+      message: "必須フィールドが不足しています。",
+    });
+  });
+
+  it("target_frequencyが空文字列の場合、400エラーを返すこと", async () => {
+    req.body.target_frequency = "";
+    await createHabit(req, res);
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({
+      message: "必須フィールドが不足しています。",
+    });
+  });
+
   it("データベースエラーが発生した場合、500エラーを返すこと", async () => {
     db.Habit.create.mockRejectedValue(new Error("Database error"));
 
@@ -145,9 +163,77 @@ describe("createHabit", () => {
     expect(res.json).toHaveBeenCalledWith(newHabit);
   });
 
+  it("habitTypeがBOOLEANの場合、target_valueがundefinedとtarget_unitがundefinedの場合は習慣を作成できること", async () => {
+    req.body.habit_type = "BOOLEAN";
+    delete req.body.target_value;
+    delete req.body.target_unit;
+
+    const newHabit = {
+      id: 1,
+      ...req.body,
+      user_id: req.user.id,
+      target_value: null,
+      target_unit: null,
+    };
+    db.Habit.create.mockResolvedValue(newHabit);
+
+    await createHabit(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(201);
+    expect(res.json).toHaveBeenCalledWith(newHabit);
+  });
+
+  it("habitTypeがBOOLEANの場合、target_valueが空文字列とtarget_unitが空文字列の場合は習慣を作成できること", async () => {
+    req.body.habit_type = "BOOLEAN";
+    req.body.target_value = "";
+    req.body.target_unit = "";
+
+    const newHabit = {
+      id: 1,
+      ...req.body,
+      user_id: req.user.id,
+      target_value: null,
+      target_unit: null,
+    };
+    db.Habit.create.mockResolvedValue(newHabit);
+
+    await createHabit(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(201);
+    expect(res.json).toHaveBeenCalledWith(newHabit);
+  });
+
   it("habitTypeがNUMERIC_DURATIONまたはNUMERIC_COUNTの場合、targetValueまたはtargetUnitがNULLの場合は400エラーを返すこと", async () => {
     req.body.habit_type = "NUMERIC_DURATION";
     req.body.target_value = null;
+    req.body.target_unit = "hours";
+
+    await createHabit(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({
+      message:
+        "NUMERIC_DURATIONまたはNUMERIC_COUNTタイプの習慣にはtargetValueとtargetUnitが必要です。",
+    });
+  });
+
+  it("habitTypeがNUMERIC_COUNTまたはNUMERIC_DURATIONで、target_valueがundefinedの場合、400エラーを返すこと", async () => {
+    req.body.habit_type = "NUMERIC_DURATION";
+    delete req.body.target_value;
+    req.body.target_unit = "hours";
+
+    await createHabit(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({
+      message:
+        "NUMERIC_DURATIONまたはNUMERIC_COUNTタイプの習慣にはtargetValueとtargetUnitが必要です。",
+    });
+  });
+
+  it("habitTypeがNUMERIC_COUNTまたはNUMERIC_DURATIONで、target_valueが空文字列の場合、400エラーを返すこと", async () => {
+    req.body.habit_type = "NUMERIC_DURATION";
+    req.body.target_value = "";
     req.body.target_unit = "hours";
 
     await createHabit(req, res);
