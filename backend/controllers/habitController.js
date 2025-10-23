@@ -11,6 +11,11 @@ import { db } from "../models/index.js";
  */
 export const getHabits = async (req, res) => {
   try {
+    // 認証チェック
+    if (!req.user) {
+      return res.status(401).json({ message: "認証されていません。" });
+    }
+
     const { Habit, FrequencyOption } = db; // FrequencyOptionモデルを追加
     const userId = req.user.id; // 認証されたユーザーのID
 

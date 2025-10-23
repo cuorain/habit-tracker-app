@@ -338,6 +338,7 @@ describe("getHabits", () => {
   let req, res;
 
   beforeAll(async () => {
+    // テスト環境であることを明示
     process.env.NODE_ENV = "test";
 
     // 既存のsequelizeインスタンスをクローズ（もしあれば）
@@ -348,26 +349,6 @@ describe("getHabits", () => {
     // 各テストスイートで新しいSequelizeインスタンスを作成
     db.sequelize = new Sequelize("sqlite::memory:", { logging: false });
     db.Sequelize = Sequelize;
-
-    // モデルを再アタッチ
-    db.User = jest
-      .requireActual("../../models/user.js")
-      .User(db.sequelize, DataTypes);
-    db.Habit = jest
-      .requireActual("../../models/habit.js")
-      .Habit(db.sequelize, DataTypes);
-    db.FrequencyOption = jest
-      .requireActual("../../models/frequencyOption.js")
-      .FrequencyOption(db.sequelize, DataTypes);
-
-    // 関連付けを再設定
-    Object.keys(db).forEach((modelName) => {
-      if (db[modelName].associate) {
-        db[modelName].associate(db);
-      }
-    });
-
-    await db.sequelize.sync({ force: true });
 
     // Mock db.Habit.findAllとdb.FrequencyOption.findByPk
     db.Habit.findAll = jest.fn();
