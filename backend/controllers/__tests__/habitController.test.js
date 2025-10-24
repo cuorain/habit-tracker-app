@@ -341,15 +341,6 @@ describe("getHabits", () => {
     // テスト環境であることを明示
     process.env.NODE_ENV = "test";
 
-    // 既存のsequelizeインスタンスをクローズ（もしあれば）
-    if (db.sequelize) {
-      await db.sequelize.close();
-    }
-
-    // 各テストスイートで新しいSequelizeインスタンスを作成
-    db.sequelize = new Sequelize("sqlite::memory:", { logging: false });
-    db.Sequelize = Sequelize;
-
     // Mock db.Habit.findAllとdb.FrequencyOption.findByPk
     db.Habit.findAll = jest.fn();
     db.FrequencyOption.findByPk = jest.fn();

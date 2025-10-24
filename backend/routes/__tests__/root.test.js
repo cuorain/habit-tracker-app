@@ -77,7 +77,7 @@ describe("Root Path", () => {
     // テスト環境であることを明示
     process.env.NODE_ENV = "test";
     // JestモックがSequelizeインスタンスを作成するので、ここで初期化は不要
-    await sequelize.sync({ force: true }); // テストごとにデータベースをクリーンにする
+    // await sequelize.sync({ force: true }); // テストごとにデータベースをクリーンにする
     app = await initializeApp();
   });
 

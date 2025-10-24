@@ -16,6 +16,8 @@ const PORT = process.env.PORT || 8080;
 import { authRoutes } from "./routes/auth.js";
 // 習慣ルートをインポート
 import { habitRoutes } from "./routes/habit.js";
+// 頻度オプションルートをインポート
+import { frequencyOptionRoutes } from "./routes/frequencyOption.js";
 // データベースモデルをインポート
 import { db, sequelize } from "./models/index.js";
 import { convertKeysToSnakeCase } from "./middleware/caseConverterMiddleware.js";
@@ -40,6 +42,8 @@ const initializeApp = async () => {
   app.use("/api/v1/auth", authRoutes);
   // 習慣関連のルートを '/api/v1/habits' パスにマウント
   app.use("/api/v1/habits", habitRoutes);
+  // 頻度オプション関連のルートを '/api/v1/frequency-options' パスにマウント
+  app.use("/api/v1/frequency-options", frequencyOptionRoutes);
 
   // データベース同期
   try {
