@@ -91,7 +91,6 @@ describe("Frequency Option Controller", () => {
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.json).toHaveBeenCalledWith(mockFrequencyOptions);
     expect(db.FrequencyOption.findAll).toHaveBeenCalledWith({
-      where: { user_id: [1, null] },
       order: [
         ["is_default", "DESC"],
         ["name", "ASC"],

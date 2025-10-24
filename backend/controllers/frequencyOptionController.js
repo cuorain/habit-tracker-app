@@ -4,9 +4,6 @@ const getFrequencyOptions = async (req, res) => {
   try {
     const userId = req.user.id;
     const frequencyOptions = await db.FrequencyOption.findAll({
-      where: {
-        user_id: [userId, null], // ユーザー定義とデフォルトの両方を取得
-      },
       order: [
         ["is_default", "DESC"], // デフォルトオプションを優先
         ["name", "ASC"], // その他のオプションを名前順
