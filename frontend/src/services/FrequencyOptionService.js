@@ -5,10 +5,16 @@ export class FrequencyOptionService {
 
   async fetchFrequencyOptions() {
     try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        throw new Error("認証トークンが見つかりません。");
+      }
+
       const response = await fetch(`${this.apiUrl}/api/v1/frequency-options`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
       });
       if (!response.ok) {
