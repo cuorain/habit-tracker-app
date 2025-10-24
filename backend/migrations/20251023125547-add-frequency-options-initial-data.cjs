@@ -4,7 +4,7 @@
 module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.bulkInsert(
-      "FrequencyOptions",
+      "frequency_options",
       [
         { name: "毎日", created_at: new Date(), updated_at: new Date() },
         { name: "週に1回", created_at: new Date(), updated_at: new Date() },
@@ -23,6 +23,6 @@ module.exports = {
   },
 
   async down(queryInterface, Sequelize) {
-    await queryInterface.bulkDelete("FrequencyOptions", null, {});
+    await queryInterface.bulkDelete("frequency_options", null, {});
   },
 };
