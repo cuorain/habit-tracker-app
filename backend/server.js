@@ -45,16 +45,6 @@ const initializeApp = async () => {
   // 頻度オプション関連のルートを '/api/v1/frequency-options' パスにマウント
   app.use("/api/v1/frequency-options", frequencyOptionRoutes);
 
-  // データベース同期
-  try {
-    await sequelize.sync({ force: false });
-    console.log("Database synced successfully.");
-  } catch (err) {
-    console.error("Unable to connect to the database:", err);
-    // エラー発生時はアプリの初期化を中断するか、適切に処理
-    throw err; // テストでエラーを捕捉できるように再スロー
-  }
-
   // initializeApp 関数はExpressアプリケーションインスタンスを返す
   return app;
 };
