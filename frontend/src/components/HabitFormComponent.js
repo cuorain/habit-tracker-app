@@ -1,3 +1,6 @@
+import { HabitService } from "../services/HabitService.js";
+import { FrequencyOptionService } from "../services/FrequencyOptionService.js";
+
 export class HabitFormComponent {
   constructor(habit = null, onSave, onCancel) {
     this.habit = habit;
@@ -7,6 +10,9 @@ export class HabitFormComponent {
     this.form = this.createForm();
     this.message = null;
     this.messageType = null;
+    this.frequencyOptionService = new FrequencyOptionService();
+    this.frequencyOptions = [];
+    this.loadFrequencyOptions();
   }
 
   createForm() {
@@ -111,12 +117,15 @@ export class HabitFormComponent {
     );
     this.form.appendChild(targetValueContainer);
 
-    // Target Frequency (Placeholder for now)
+    // Target Frequency (Dropdown)
     this.form.appendChild(
-      this.createInputField(
+      this.createSelectField(
         "targetFrequencyId",
-        "text",
-        "目標頻度 (例: 毎日, 週3回)",
+        "目標頻度",
+        this.frequencyOptions.map((option) => ({
+          value: option.id,
+          label: option.name,
+        })),
         this.habit?.targetFrequencyId || ""
       )
     );
@@ -336,5 +345,17 @@ export class HabitFormComponent {
     this.habit = null;
     this.isEdit = false;
     this.toggleTargetValueFields();
+  }
+
+  async loadFrequencyOptions() {
+    try {
+      this.frequencyOptions =
+        await this.frequencyOptionService.fetchFrequencyOptions();
+      this.render(); // Re-render the form to display the loaded options
+    } catch (error) {
+      console.error("Failed to load frequency options:", error);
+      this.showMessage("頻度オプションの読み込みに失敗しました。", "error");
+      this.render(); // Re-render to display error message
+    }
   }
 }

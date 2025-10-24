@@ -1,11 +1,16 @@
 export class FrequencyOptionService {
   constructor() {
-    this.baseUrl = "/api/frequency-options"; // Adjust if your API base URL is different
+    this.apiUrl = process.env.VITE_API_URL || "http://localhost:8080";
   }
 
-  async getFrequencyOptions() {
+  async fetchFrequencyOptions() {
     try {
-      const response = await fetch(this.baseUrl);
+      const response = await fetch(`${this.apiUrl}/api/v1/frequency-options`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }

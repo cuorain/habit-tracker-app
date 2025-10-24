@@ -1,4 +1,7 @@
 import { HabitFormComponent } from "../HabitFormComponent.js";
+import { FrequencyOptionService } from "../../services/FrequencyOptionService.js";
+
+jest.mock("../../services/FrequencyOptionService.js");
 
 describe("HabitFormComponent", () => {
   let container;
@@ -6,6 +9,16 @@ describe("HabitFormComponent", () => {
   let onCancelMock;
 
   beforeEach(() => {
+    // Reset the mock before each test
+    FrequencyOptionService.mockClear();
+    FrequencyOptionService.mockImplementation(() => {
+      return {
+        fetchFrequencyOptions: jest.fn().mockResolvedValue([
+          { id: "1", name: "Daily" },
+          { id: "2", name: "Weekly" },
+        ]),
+      };
+    });
     container = document.createElement("div");
     document.body.appendChild(container);
     onSaveMock = jest.fn();
@@ -33,15 +46,47 @@ describe("HabitFormComponent", () => {
     expect(container.querySelector("#cancel-habit-btn")).not.toBeNull();
   });
 
-  test("保存ボタンがクリックされたときに正しいデータでonSaveが呼び出されること (BOOLEAN)", () => {
+  test("頻度オプションがロードされ、表示されること", async () => {
+    const mockFrequencyOptions = [
+      { id: "1", name: "Daily" },
+      { id: "2", name: "Weekly" },
+    ];
+    // No need to spyOn here, as the service is already mocked
+    // jest.spyOn(FrequencyOptionService, "fetchFrequencyOptions").mockResolvedValue(mockFrequencyOptions);
+
     const component = new HabitFormComponent(null, onSaveMock, onCancelMock);
     container.appendChild(component.render());
+
+    await new Promise((resolve) => setTimeout(resolve, 0)); // Wait for async operations
+
+    const selectElement = container.querySelector("#targetFrequencyId");
+    expect(selectElement).not.toBeNull();
+    expect(selectElement.children.length).toBe(mockFrequencyOptions.length);
+    expect(selectElement.children[0].textContent).toBe("Daily");
+    expect(selectElement.children[0].value).toBe("1");
+    expect(selectElement.children[1].textContent).toBe("Weekly");
+    expect(selectElement.children[1].value).toBe("2");
+
+    // Verify that fetchFrequencyOptions was called
+    expect(FrequencyOptionService).toHaveBeenCalledTimes(1);
+    expect(
+      FrequencyOptionService.mock.results[0].value.fetchFrequencyOptions
+    ).toHaveBeenCalledTimes(1);
+  });
+
+  test("保存ボタンがクリックされたときに正しいデータでonSaveが呼び出されること (BOOLEAN)", async () => {
+    const component = new HabitFormComponent(null, onSaveMock, onCancelMock);
+    container.appendChild(component.render());
+    await new Promise((resolve) => setTimeout(resolve, 0)); // Wait for async operations
 
     container.querySelector("#habitName").value = "Read Book";
     container.querySelector("#description").value = "Read 30 minutes daily";
     container.querySelector("#category").value = "Learning";
     container.querySelector("#habitType").value = "BOOLEAN";
     container.querySelector("#targetFrequencyId").value = "1";
+    container
+      .querySelector("#targetFrequencyId")
+      .dispatchEvent(new Event("change")); // Manually dispatch change event
 
     container.querySelector("#save-habit-btn").click();
 
@@ -54,9 +99,10 @@ describe("HabitFormComponent", () => {
     });
   });
 
-  test("保存ボタンがクリックされたときに正しいデータでonSaveが呼び出されること (NUMERIC_COUNT)", () => {
+  test("保存ボタンがクリックされたときに正しいデータでonSaveが呼び出されること (NUMERIC_COUNT)", async () => {
     const component = new HabitFormComponent(null, onSaveMock, onCancelMock);
     container.appendChild(component.render());
+    await new Promise((resolve) => setTimeout(resolve, 0)); // Wait for async operations
 
     container.querySelector("#habitName").value = "Pushups";
     container.querySelector("#description").value = "100 pushups";
@@ -65,6 +111,9 @@ describe("HabitFormComponent", () => {
     container.querySelector("#targetValue").value = "100";
     container.querySelector("#targetUnit").value = "reps";
     container.querySelector("#targetFrequencyId").value = "1";
+    container
+      .querySelector("#targetFrequencyId")
+      .dispatchEvent(new Event("change")); // Manually dispatch change event
 
     container.querySelector("#save-habit-btn").click();
 
