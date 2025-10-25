@@ -1,12 +1,11 @@
 import { AuthService } from "../services/AuthService";
 import { AuthComponent } from "./AuthComponent";
-import { initDashboard } from "./DashboardComponent";
+import { DashboardComponent } from "./DashboardComponent";
 
 export class App {
   constructor() {
     this.authService = new AuthService();
     this.authComponent = new AuthComponent(this.handleAuthSuccess.bind(this));
-    this.dashboardComponent = null; // 後でインスタンス化
     this.messageDisplay = document.getElementById("message-display");
     this.rootElement = document.getElementById("app-content"); // Target the new content div
     if (!this.rootElement) {
@@ -15,6 +14,7 @@ export class App {
       this.rootElement.id = "app-content";
       document.querySelector("main").appendChild(this.rootElement); // Append to main if missing
     }
+    this.dashboardComponent = new DashboardComponent(this.rootElement); // インスタンス化
 
     this.mainElement = document.querySelector("main");
   }
@@ -67,7 +67,7 @@ export class App {
     this.rootElement.innerHTML = ""; // Clear previous content
     if (isAuthed) {
       // 認証済みの場合はダッシュボードを表示
-      initDashboard(this.rootElement);
+      this.dashboardComponent.init();
     } else {
       // 未認証の場合は認証コンポーネントを表示
       this.rootElement.appendChild(this.authComponent.render());

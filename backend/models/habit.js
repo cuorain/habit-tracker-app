@@ -50,9 +50,13 @@ const Habit = (sequelize, DataTypes) => {
         type: DataTypes.STRING(20),
         allowNull: true,
       },
-      target_frequency: {
-        type: DataTypes.INTEGER,
+      target_frequency_id: {
+        type: DataTypes.BIGINT,
         allowNull: false,
+        references: {
+          model: "frequency_options",
+          key: "id",
+        },
         defaultValue: 1,
       },
       created_at: {
@@ -78,6 +82,10 @@ const Habit = (sequelize, DataTypes) => {
     Habit.belongsTo(models.User, {
       foreignKey: "user_id",
       onDelete: "CASCADE",
+    });
+    Habit.belongsTo(models.FrequencyOption, {
+      foreignKey: "target_frequency_id",
+      onDelete: "RESTRICT",
     });
   };
 

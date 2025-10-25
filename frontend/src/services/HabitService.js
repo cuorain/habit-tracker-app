@@ -24,4 +24,27 @@ export class HabitService {
       throw new Error(data.message || "習慣の取得に失敗しました。");
     }
   }
+
+  async createHabit(habitData) {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      throw new Error("認証トークンが見つかりません。");
+    }
+
+    const response = await fetch(`${this.apiUrl}/api/v1/habits`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(habitData),
+    });
+
+    const data = await response.json();
+    if (response.ok) {
+      return data;
+    } else {
+      throw new Error(data.message || "習慣の作成に失敗しました。");
+    }
+  }
 }
