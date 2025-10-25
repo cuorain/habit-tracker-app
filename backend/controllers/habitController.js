@@ -82,13 +82,16 @@ export const createHabit = async (req, res) => {
       target_frequency_id, // target_frequencyをtarget_frequency_idに変更
     } = req.body;
 
+    // target_frequency_idを数値に変換
+    const parsed_target_frequency_id = parseInt(target_frequency_id, 10);
+
     // 必須フィールドの検証 (habit_typeに依存しないもの)
     if (
       !name ||
       !description ||
       !category ||
       !habit_type ||
-      target_frequency_id == null || // target_frequency_idに変更
+      isNaN(parsed_target_frequency_id) || // 数値であることを確認
       (typeof target_frequency_id === "string" &&
         target_frequency_id.trim() === "") // target_frequency_idに変更
     ) {
@@ -98,7 +101,7 @@ export const createHabit = async (req, res) => {
     }
 
     // target_frequency_idが数値であることを確認
-    if (typeof target_frequency_id !== "number" || target_frequency_id <= 0) {
+    if (isNaN(parsed_target_frequency_id) || parsed_target_frequency_id <= 0) {
       return res.status(400).json({
         message: "targetFrequencyIdは1以上の数値である必要があります。",
       });
@@ -106,7 +109,9 @@ export const createHabit = async (req, res) => {
 
     // target_frequency_idがfrequency_optionsテーブルに存在するか確認
     const { FrequencyOption } = db;
-    const frequencyOption = await FrequencyOption.findByPk(target_frequency_id);
+    const frequencyOption = await FrequencyOption.findByPk(
+      parsed_target_frequency_id
+    );
     if (!frequencyOption) {
       return res.status(400).json({
         message: "指定されたtargetFrequencyIdは存在しません。",
@@ -169,7 +174,7 @@ export const createHabit = async (req, res) => {
       habit_type,
       target_value,
       target_unit,
-      target_frequency_id, // target_frequencyをtarget_frequency_idに変更
+      target_frequency_id: parsed_target_frequency_id, // target_frequencyをtarget_frequency_idに変更
       user_id: userId,
     });
 
