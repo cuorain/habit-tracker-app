@@ -126,6 +126,25 @@ describe("DashboardComponent", () => {
     });
   });
 
+  test("各習慣に削除ボタンが表示されること", async () => {
+    const mockHabits = [
+      { id: "1", name: "Test Habit 1" },
+      { id: "2", name: "Test Habit 2" },
+    ];
+    mockGetHabits.mockResolvedValue(mockHabits);
+    const dashboard = new DashboardComponent(container);
+    await dashboard.init();
+
+    const habitItems = container.querySelectorAll(".habit-item");
+    expect(habitItems.length).toBe(2);
+
+    habitItems.forEach((item) => {
+      const deleteButton = item.querySelector(".delete-habit-button");
+      expect(deleteButton).not.toBeNull();
+      expect(deleteButton.querySelector("svg.lucide-trash-2")).not.toBeNull(); // Check for the SVG icon
+    });
+  });
+
   test("「新しい習慣を作成」ボタンがクリックされたときにフォームが表示されること", async () => {
     mockGetHabits.mockResolvedValue([]);
     const dashboard = new DashboardComponent(container);
