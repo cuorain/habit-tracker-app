@@ -41,6 +41,13 @@ export class DashboardComponent {
         const li = document.createElement("li");
         li.className = "habit-item";
         li.textContent = habit.name;
+        
+        // Add Edit Button inside the loop
+        const editButton = document.createElement("button");
+        editButton.className = "edit-habit-button";
+        editButton.textContent = "編集";
+        li.appendChild(editButton);
+
         ul.appendChild(li);
       });
       this.container.appendChild(ul);
