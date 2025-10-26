@@ -119,10 +119,10 @@ describe("DashboardComponent", () => {
     const habitItems = container.querySelectorAll(".habit-item");
     expect(habitItems.length).toBe(2);
 
-    habitItems.forEach(item => {
+    habitItems.forEach((item) => {
       const editButton = item.querySelector(".edit-habit-button");
       expect(editButton).not.toBeNull();
-      expect(editButton.textContent).toBe("編集");
+      expect(editButton.querySelector("svg.lucide-pencil")).not.toBeNull(); // Check for the SVG icon
     });
   });
 
