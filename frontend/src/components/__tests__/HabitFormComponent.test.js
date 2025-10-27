@@ -30,6 +30,84 @@ describe("HabitFormComponent", () => {
     jest.clearAllMocks();
   });
 
+  test("edit modeでタイトルが正しくレンダリングされること", async () => {
+    const mockHabit = {
+      id: "1",
+      name: "既存の習慣",
+      description: "既存の説明",
+      category: "既存のカテゴリ",
+      habitType: "BOOLEAN",
+      targetFrequencyId: "1",
+    };
+    const component = new HabitFormComponent(
+      mockHabit,
+      onSaveMock,
+      onCancelMock
+    );
+    container.appendChild(component.render());
+    await new Promise((resolve) => setTimeout(resolve, 0)); // Wait for async operations
+
+    expect(container.querySelector("h2").textContent).toBe("習慣を編集");
+  });
+
+  test("edit modeで既存の習慣データが入力フィールドに設定されること", async () => {
+    const mockHabit = {
+      id: "1",
+      name: "既存の習慣",
+      description: "既存の説明",
+      category: "既存のカテゴリ",
+      habitType: "NUMERIC_COUNT",
+      targetValue: 10,
+      targetUnit: "reps",
+      targetFrequencyId: "2",
+    };
+    const component = new HabitFormComponent(
+      mockHabit,
+      onSaveMock,
+      onCancelMock
+    );
+    container.appendChild(component.render());
+    await new Promise((resolve) => setTimeout(resolve, 0)); // Wait for async operations
+
+    expect(container.querySelector("#habitName").value).toBe(mockHabit.name);
+    expect(container.querySelector("#description").value).toBe(
+      mockHabit.description
+    );
+    expect(container.querySelector("#category").value).toBe(mockHabit.category);
+    expect(container.querySelector("#habitType").value).toBe(
+      mockHabit.habitType
+    );
+    expect(container.querySelector("#targetValue").value).toBe(
+      String(mockHabit.targetValue)
+    );
+    expect(container.querySelector("#targetUnit").value).toBe(
+      mockHabit.targetUnit
+    );
+    expect(container.querySelector("#targetFrequencyId").value).toBe(
+      mockHabit.targetFrequencyId
+    );
+  });
+
+  test("edit modeで保存ボタンのテキストが「更新」になっていること", async () => {
+    const mockHabit = {
+      id: "1",
+      name: "既存の習慣",
+      description: "既存の説明",
+      category: "既存のカテゴリ",
+      habitType: "BOOLEAN",
+      targetFrequencyId: "1",
+    };
+    const component = new HabitFormComponent(
+      mockHabit,
+      onSaveMock,
+      onCancelMock
+    );
+    container.appendChild(component.render());
+    await new Promise((resolve) => setTimeout(resolve, 0)); // Wait for async operations
+
+    expect(container.querySelector("#save-habit-btn").textContent).toBe("更新"); // 現状は「保存」のまま
+  });
+
   test("create modeで正しくレンダリングされること", () => {
     const component = new HabitFormComponent(null, onSaveMock, onCancelMock);
     container.appendChild(component.render());
