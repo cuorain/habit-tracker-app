@@ -1,4 +1,4 @@
-import { createHabit, getHabits } from "../habitController";
+import { createHabit, getHabits, updateHabit } from "../habitController";
 import { jest } from "@jest/globals";
 import { Sequelize, DataTypes } from "sequelize";
 
@@ -492,6 +492,286 @@ describe("getHabits", () => {
     expect(res.status).toHaveBeenCalledWith(500);
     expect(res.json).toHaveBeenCalledWith({
       message: "サーバーエラーが発生しました。",
+    });
+  });
+});
+
+describe("updateHabit", () => {
+  let req, res;
+  beforeAll(async () => {
+    // テスト環境であることを明示
+    process.env.NODE_ENV = "test";
+
+    db.Habit.findByPk = jest.fn();
+    db.Habit.update = jest.fn();
+    db.FrequencyOption.findByPk = jest.fn(); // FrequencyOptionのモックを追加
+  });
+
+  afterAll(async () => {
+    await sequelize.close(); // テスト後にデータベース接続をクローズ
+  });
+
+  beforeEach(() => {
+    req = {
+      params: { id: 1 },
+      user: { id: 1 },
+      body: {
+        name: "Updated Habit",
+        description: "Updated Description",
+        category: "Health",
+        habit_type: "NUMERIC_COUNT",
+        target_value: 2,
+        target_unit: "times",
+        target_frequency_id: 1,
+      },
+    };
+    res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+    };
+    jest.clearAllMocks();
+  });
+
+  it("習慣が正常に更新された場合、200ステータスと更新された習慣を返すこと", async () => {
+    const { updateHabit } = await import("../habitController");
+    db.Habit.findByPk.mockResolvedValue({
+      id: 1,
+      user_id: 1,
+      update: jest.fn().mockResolvedValue(true),
+    });
+    db.FrequencyOption.findByPk = jest.fn().mockResolvedValue({ id: 1 });
+
+    await updateHabit(req, res);
+
+    expect(db.Habit.update).toHaveBeenCalledWith({
+      name: "Updated Habit",
+      description: "Updated Description",
+      category: "Health",
+      habit_type: "NUMERIC_COUNT",
+      target_value: 2,
+      target_unit: "times",
+      target_frequency_id: 1,
+    });
+    expect(res.status).toHaveBeenCalledWith(200);
+  });
+
+  it("認証情報（req.user）がない場合、401エラーを返すこと", async () => {
+    const { updateHabit } = await import("../habitController");
+    delete req.user;
+
+    await updateHabit(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(401);
+    expect(res.json).toHaveBeenCalledWith({ message: "認証されていません。" });
+  });
+
+  it("習慣が見つからない場合、404エラーを返すこと", async () => {
+    const { updateHabit } = await import("../habitController");
+    db.Habit.findByPk.mockResolvedValue(null);
+
+    await updateHabit(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(404);
+    expect(res.json).toHaveBeenCalledWith({
+      message: "習慣が見つかりません。",
+    });
+  });
+
+  it("他のユーザーの習慣を更新しようとした場合、403エラーを返すこと", async () => {
+    const { updateHabit } = await import("../habitController");
+    db.Habit.findByPk.mockResolvedValue({
+      id: 1,
+      user_id: 2, // 異なるユーザーID
+      update: jest.fn(),
+    });
+
+    await updateHabit(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(403);
+    expect(res.json).toHaveBeenCalledWith({ message: "許可されていません。" });
+  });
+
+  it("必須フィールドが不足している場合、400エラーを返すこと", async () => {
+    const { updateHabit } = await import("../habitController");
+    db.Habit.findByPk.mockResolvedValue({
+      id: 1,
+      user_id: 1,
+      update: jest.fn(),
+    });
+    delete req.body.name;
+
+    await updateHabit(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({
+      message: "必須フィールドが不足しています。",
+    });
+  });
+
+  it("target_frequency_idが数値でない場合、400エラーを返すこと", async () => {
+    const { updateHabit } = await import("../habitController");
+    db.Habit.findByPk.mockResolvedValue({
+      id: 1,
+      user_id: 1,
+      update: jest.fn(),
+    });
+    req.body.target_frequency_id = "invalid";
+
+    await updateHabit(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({
+      message: "必須フィールドが不足しています。",
+    });
+  });
+
+  it("target_frequency_idが1未満の場合、400エラーを返すこと", async () => {
+    const { updateHabit } = await import("../habitController");
+    db.Habit.findByPk.mockResolvedValue({
+      id: 1,
+      user_id: 1,
+      update: jest.fn(),
+    });
+    req.body.target_frequency_id = 0;
+
+    await updateHabit(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({
+      message: "targetFrequencyIdは1以上の数値である必要があります。",
+    });
+  });
+
+  it("存在しないtarget_frequency_idの場合、400エラーを返すこと", async () => {
+    const { updateHabit } = await import("../habitController");
+    db.Habit.findByPk.mockResolvedValue({
+      id: 1,
+      user_id: 1,
+      update: jest.fn(),
+    });
+    db.FrequencyOption.findByPk.mockResolvedValue(null);
+    req.body.target_frequency_id = 999; // 存在しないID
+
+    await updateHabit(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({
+      message: "指定されたtargetFrequencyIdは存在しません。",
+    });
+  });
+
+  it("不正なhabitTypeの場合、400エラーを返すこと", async () => {
+    const { updateHabit } = await import("../habitController");
+    db.Habit.findByPk.mockResolvedValue({
+      id: 1,
+      user_id: 1,
+      update: jest.fn(),
+    });
+    db.FrequencyOption.findByPk.mockResolvedValue({ id: 1 });
+    req.body.habit_type = "INVALID_TYPE";
+
+    await updateHabit(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({
+      message:
+        "habitTypeはBOOLEAN, NUMERIC_DURATION, NUMERIC_COUNTのいずれかである必要があります。",
+    });
+  });
+
+  it("habitTypeがBOOLEANの場合、targetValueとtargetUnitが設定されていると400エラーを返すこと", async () => {
+    const { updateHabit } = await import("../habitController");
+    db.Habit.findByPk.mockResolvedValue({
+      id: 1,
+      user_id: 1,
+      update: jest.fn(),
+    });
+    db.FrequencyOption.findByPk.mockResolvedValue({ id: 1 });
+    req.body.habit_type = "BOOLEAN";
+    req.body.target_value = 1;
+    req.body.target_unit = "times";
+
+    await updateHabit(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({
+      message:
+        "BOOLEANタイプの習慣にはtargetValueとtargetUnitは設定できません。",
+    });
+  });
+
+  it("habitTypeがNUMERIC_DURATIONまたはNUMERIC_COUNTの場合、targetValueまたはtargetUnitがNULLだと400エラーを返すこと", async () => {
+    const { updateHabit } = await import("../habitController");
+    db.Habit.findByPk.mockResolvedValue({
+      id: 1,
+      user_id: 1,
+      update: jest.fn(),
+    });
+    db.FrequencyOption.findByPk.mockResolvedValue({ id: 1 });
+    req.body.habit_type = "NUMERIC_DURATION";
+    req.body.target_value = null;
+    req.body.target_unit = "hours";
+
+    await updateHabit(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({
+      message:
+        "NUMERIC_DURATIONまたはNUMERIC_COUNTタイプの習慣にはtargetValueとtargetUnitが必要です。",
+    });
+  });
+
+  it("habitTypeがNUMERIC_DURATIONまたはNUMERIC_COUNTの場合、targetValueが0未満だと400エラーを返すこと", async () => {
+    const { updateHabit } = await import("../habitController");
+    db.Habit.findByPk.mockResolvedValue({
+      id: 1,
+      user_id: 1,
+      update: jest.fn(),
+    });
+    db.FrequencyOption.findByPk.mockResolvedValue({ id: 1 });
+    req.body.habit_type = "NUMERIC_COUNT";
+    req.body.target_value = -1;
+    req.body.target_unit = "reps";
+
+    await updateHabit(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({
+      message: "targetValueは0以上の数値である必要があります。",
+    });
+  });
+
+  it("habitTypeがNUMERIC_DURATIONまたはNUMERIC_COUNTの場合、targetUnitが無効だと400エラーを返すこと", async () => {
+    const { updateHabit } = await import("../habitController");
+    db.Habit.findByPk.mockResolvedValue({
+      id: 1,
+      user_id: 1,
+      update: jest.fn(),
+    });
+    db.FrequencyOption.findByPk.mockResolvedValue({ id: 1 });
+    req.body.habit_type = "NUMERIC_DURATION";
+    req.body.target_value = 1;
+    req.body.target_unit = "invalid_unit";
+
+    await updateHabit(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({
+      message:
+        "targetUnitはhours, minutes, reps, timesのいずれかである必要があります。",
+    });
+  });
+
+  it("データベースエラーが発生した場合、500エラーを返すこと", async () => {
+    const { updateHabit } = await import("../habitController");
+    db.Habit.update.mockRejectedValue(new Error("Database error"));
+    db.FrequencyOption.findByPk.mockResolvedValue({ id: 1 });
+
+    await updateHabit(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.json).toHaveBeenCalledWith({
+      message: "習慣の更新中にエラーが発生しました。",
     });
   });
 });
