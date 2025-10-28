@@ -7,6 +7,7 @@ import {
   getHabits,
   createHabit,
   updateHabit,
+  deleteHabit,
 } from "../controllers/habitController.js";
 import { authenticateToken } from "../middleware/authMiddleware.js";
 
@@ -18,5 +19,7 @@ habitRoutes.get("/", authenticateToken, getHabits);
 habitRoutes.post("/", authenticateToken, createHabit);
 // 習慣更新
 habitRoutes.put("/:id", authenticateToken, updateHabit);
+// 習慣削除
+habitRoutes.delete("/:id", authenticateToken, deleteHabit);
 
 export { habitRoutes };
