@@ -167,4 +167,57 @@ describe("HabitService", () => {
       "認証トークンが見つかりません。"
     );
   });
+
+  it("習慣を正常に更新できること", async () => {
+    const updatedHabit = { id: "1", name: "Updated Read", type: "BOOLEAN" };
+    global.fetch.mockImplementationOnce((url, options) => {
+      if (
+        url === `${process.env.VITE_API_URL}/api/v1/habits/1` &&
+        options.method === "PUT"
+      ) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve(updatedHabit),
+        });
+      }
+      return Promise.reject(new Error("Unknown API call"));
+    });
+
+    const result = await habitService.updateHabit("1", updatedHabit);
+
+    expect(fetch).toHaveBeenCalledWith(
+      `${process.env.VITE_API_URL}/api/v1/habits/1`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${mockToken}`,
+        },
+        body: JSON.stringify(updatedHabit),
+      }
+    );
+    expect(result).toEqual(updatedHabit);
+  });
+
+  it("習慣の更新に失敗した場合、エラーをスローすること", async () => {
+    global.fetch.mockImplementationOnce(() =>
+      Promise.resolve({
+        ok: false,
+        json: () => Promise.resolve({ message: "習慣の更新に失敗しました。" }),
+      })
+    );
+
+    const updatedHabit = { id: "1", name: "Failing Update", type: "BOOLEAN" };
+    await expect(habitService.updateHabit("1", updatedHabit)).rejects.toThrow(
+      "習慣の更新に失敗しました。"
+    );
+  });
+
+  it("updateHabitでトークンが存在しない場合、エラーをスローすること", async () => {
+    localStorage.removeItem("token");
+    const updatedHabit = { id: "1", name: "Update without token", type: "BOOLEAN" };
+    await expect(habitService.updateHabit("1", updatedHabit)).rejects.toThrow(
+      "認証トークンが見つかりません。"
+    );
+  });
 });

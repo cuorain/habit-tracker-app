@@ -1,0 +1,51 @@
+.habit-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  margin-bottom: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: #f9f9f9;
+}
+
+.habit-text-container {
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+}
+
+.habit-text-container span {
+  margin-right: 10px; /* Space between habit name and other elements */
+}
+
+.habit-actions {
+  display: flex;
+  gap: 10px; /* Space between action buttons */
+}
+
+.edit-habit-button,
+.delete-habit-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.edit-habit-button svg,
+.delete-habit-button svg {
+  width: 20px;
+  height: 20px;
+  color: #555; /* Default icon color */
+}
+
+.edit-habit-button:hover svg {
+  color: #007bff; /* Hover color for edit icon */
+}
+
+.delete-habit-button:hover svg {
+  color: #dc3545; /* Hover color for delete icon */
+}

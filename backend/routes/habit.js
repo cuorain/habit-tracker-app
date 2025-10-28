@@ -3,7 +3,11 @@
  */
 
 import express from "express";
-import { getHabits, createHabit } from "../controllers/habitController.js";
+import {
+  getHabits,
+  createHabit,
+  updateHabit,
+} from "../controllers/habitController.js";
 import { authenticateToken } from "../middleware/authMiddleware.js";
 
 const habitRoutes = express.Router();
@@ -12,5 +16,7 @@ const habitRoutes = express.Router();
 habitRoutes.get("/", authenticateToken, getHabits);
 // 習慣作成
 habitRoutes.post("/", authenticateToken, createHabit);
+// 習慣更新
+habitRoutes.put("/:id", authenticateToken, updateHabit);
 
 export { habitRoutes };

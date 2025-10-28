@@ -133,7 +133,7 @@ export class HabitFormComponent {
     const buttonContainer = document.createElement("div");
     buttonContainer.className = "form-button-container";
     buttonContainer.appendChild(
-      this.createButton("save-habit-btn", "保存", "btn-gradient")
+      this.createButton("save-habit-btn", this.isEdit ? "更新" : "保存", "btn-gradient")
     );
     buttonContainer.appendChild(
       this.createButton("cancel-habit-btn", "キャンセル", "btn-secondary")

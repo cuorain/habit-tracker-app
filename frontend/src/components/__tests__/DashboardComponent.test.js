@@ -1,5 +1,5 @@
-import { HabitService } from "../../services/HabitService";
 import { DashboardComponent } from "../DashboardComponent.js";
+import { HabitService } from "../../services/HabitService";
 import { HabitFormComponent } from "../HabitFormComponent.js";
 
 let mockFormElement; // Declare at a higher scope
@@ -25,7 +25,7 @@ describe("DashboardComponent", () => {
   let mockGetHabits;
   let mockCreateHabit;
   let mockUpdateHabit;
-  let container;
+  let container; // Declare container here
 
   beforeEach(() => {
     // Reset mocks and re-implement getHabits for each test
@@ -105,6 +105,44 @@ describe("DashboardComponent", () => {
       "Exercise"
     );
     expect(container.querySelector(".create-habit-button")).not.toBeNull();
+  });
+
+  test("各習慣に編集ボタンが表示されること", async () => {
+    const mockHabits = [
+      { id: "1", name: "Test Habit 1" },
+      { id: "2", name: "Test Habit 2" },
+    ];
+    mockGetHabits.mockResolvedValue(mockHabits);
+    const dashboard = new DashboardComponent(container);
+    await dashboard.init();
+
+    const habitItems = container.querySelectorAll(".habit-item");
+    expect(habitItems.length).toBe(2);
+
+    habitItems.forEach((item) => {
+      const editButton = item.querySelector(".edit-habit-button");
+      expect(editButton).not.toBeNull();
+      expect(editButton.querySelector("svg.lucide-pencil")).not.toBeNull(); // Check for the SVG icon
+    });
+  });
+
+  test("各習慣に削除ボタンが表示されること", async () => {
+    const mockHabits = [
+      { id: "1", name: "Test Habit 1" },
+      { id: "2", name: "Test Habit 2" },
+    ];
+    mockGetHabits.mockResolvedValue(mockHabits);
+    const dashboard = new DashboardComponent(container);
+    await dashboard.init();
+
+    const habitItems = container.querySelectorAll(".habit-item");
+    expect(habitItems.length).toBe(2);
+
+    habitItems.forEach((item) => {
+      const deleteButton = item.querySelector(".delete-habit-button");
+      expect(deleteButton).not.toBeNull();
+      expect(deleteButton.querySelector("svg.lucide-trash-2")).not.toBeNull(); // Check for the SVG icon
+    });
   });
 
   test("「新しい習慣を作成」ボタンがクリックされたときにフォームが表示されること", async () => {
