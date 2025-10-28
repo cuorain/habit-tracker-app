@@ -301,14 +301,16 @@ export const updateHabit = async (req, res) => {
       }
     }
 
-    const updatedHabit = await Habit.update({
-      name,
-      description,
-      category,
-      habit_type,
-      target_value,
-      target_unit,
+    const updatedAt = new Date();
+    const updatedHabit = await habit.update({
+      name: name,
+      description: description,
+      category: category,
+      habit_type: habit_type,
+      target_value: target_value,
+      target_unit: target_unit,
       target_frequency_id: parsed_target_frequency_id,
+      updated_at: updatedAt,
     });
 
     res.status(200).json(updatedHabit);

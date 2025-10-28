@@ -43,23 +43,15 @@ jest.mock("../../models/index.js", () => {
   };
 });
 
-const { db, sequelize } = await import("../../models/index.js");
+const { db } = await import("../../models/index.js");
 
 describe("createHabit", () => {
   let req, res;
 
   beforeAll(async () => {
-    // テスト環境であることを明示
-    process.env.NODE_ENV = "test";
-    await sequelize.sync({ force: true }); // テストごとにデータベースをクリーンにする
-
     // Jestモックのdb.Habit.createを直接参照してモックをセットアップ
     db.Habit.create = jest.fn();
     db.FrequencyOption.findByPk = jest.fn(); // FrequencyOptionのモックを追加
-  });
-
-  afterAll(async () => {
-    await sequelize.close(); // テスト後にデータベース接続をクローズ
   });
 
   beforeEach(() => {
@@ -338,16 +330,9 @@ describe("getHabits", () => {
   let req, res;
 
   beforeAll(async () => {
-    // テスト環境であることを明示
-    process.env.NODE_ENV = "test";
-
     // Mock db.Habit.findAllとdb.FrequencyOption.findByPk
     db.Habit.findAll = jest.fn();
     db.FrequencyOption.findByPk = jest.fn();
-  });
-
-  afterAll(async () => {
-    await db.sequelize.close();
   });
 
   beforeEach(() => {
@@ -499,16 +484,8 @@ describe("getHabits", () => {
 describe("updateHabit", () => {
   let req, res;
   beforeAll(async () => {
-    // テスト環境であることを明示
-    process.env.NODE_ENV = "test";
-
     db.Habit.findByPk = jest.fn();
-    db.Habit.update = jest.fn();
     db.FrequencyOption.findByPk = jest.fn(); // FrequencyOptionのモックを追加
-  });
-
-  afterAll(async () => {
-    await sequelize.close(); // テスト後にデータベース接続をクローズ
   });
 
   beforeEach(() => {
@@ -534,16 +511,29 @@ describe("updateHabit", () => {
 
   it("習慣が正常に更新された場合、200ステータスと更新された習慣を返すこと", async () => {
     const { updateHabit } = await import("../habitController");
-    db.Habit.findByPk.mockResolvedValue({
+    const mockHabit = {
       id: 1,
       user_id: 1,
       update: jest.fn().mockResolvedValue(true),
-    });
-    db.FrequencyOption.findByPk = jest.fn().mockResolvedValue({ id: 1 });
+      get: jest.fn().mockReturnValue({
+        id: 1,
+        name: "Updated Habit",
+        description: "Updated Description",
+        category: "Health",
+        habit_type: "NUMERIC_COUNT",
+        target_value: 2,
+        target_unit: "times",
+        target_frequency_id: 1,
+        created_at: new Date(),
+        updated_at: new Date(),
+      }),
+    };
+    db.Habit.findByPk.mockResolvedValue(mockHabit);
+    db.FrequencyOption.findByPk.mockResolvedValue({ id: 1 });
 
     await updateHabit(req, res);
 
-    expect(db.Habit.update).toHaveBeenCalledWith({
+    expect(mockHabit.update).toHaveBeenCalledWith({
       name: "Updated Habit",
       description: "Updated Description",
       category: "Health",
@@ -551,8 +541,10 @@ describe("updateHabit", () => {
       target_value: 2,
       target_unit: "times",
       target_frequency_id: 1,
+      updated_at: expect.any(Date),
     });
     expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith(true);
   });
 
   it("認証情報（req.user）がない場合、401エラーを返すこと", async () => {
@@ -764,7 +756,24 @@ describe("updateHabit", () => {
 
   it("データベースエラーが発生した場合、500エラーを返すこと", async () => {
     const { updateHabit } = await import("../habitController");
-    db.Habit.update.mockRejectedValue(new Error("Database error"));
+    const mockHabit = {
+      id: 1,
+      user_id: 1,
+      update: jest.fn().mockRejectedValue(new Error("Database error")),
+      get: jest.fn().mockReturnValue({
+        id: 1,
+        name: "Updated Habit",
+        description: "Updated Description",
+        category: "Health",
+        habit_type: "NUMERIC_COUNT",
+        target_value: 2,
+        target_unit: "times",
+        target_frequency_id: 1,
+        created_at: new Date(),
+        updated_at: new Date(),
+      }),
+    };
+    db.Habit.findByPk.mockResolvedValue(mockHabit);
     db.FrequencyOption.findByPk.mockResolvedValue({ id: 1 });
 
     await updateHabit(req, res);
