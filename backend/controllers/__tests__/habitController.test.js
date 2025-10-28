@@ -1,4 +1,9 @@
-import { createHabit, getHabits, updateHabit } from "../habitController";
+import {
+  createHabit,
+  getHabits,
+  updateHabit,
+  deleteHabit,
+} from "../habitController";
 import { jest } from "@jest/globals";
 import { Sequelize, DataTypes } from "sequelize";
 
@@ -781,6 +786,96 @@ describe("updateHabit", () => {
     expect(res.status).toHaveBeenCalledWith(500);
     expect(res.json).toHaveBeenCalledWith({
       message: "習慣の更新中にエラーが発生しました。",
+    });
+  });
+});
+
+describe("deleteHabit", () => {
+  let req, res;
+
+  beforeAll(async () => {
+    db.Habit.findByPk = jest.fn();
+  });
+
+  beforeEach(() => {
+    req = {
+      params: { id: 1 },
+      user: { id: 1 },
+    };
+    res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+    };
+    jest.clearAllMocks();
+  });
+
+  it("習慣が正常に削除された場合、200ステータスと成功メッセージを返すこと", async () => {
+    const { deleteHabit } = await import("../habitController");
+    const mockHabit = {
+      id: 1,
+      user_id: 1,
+      destroy: jest.fn().mockResolvedValue(true),
+    };
+    db.Habit.findByPk.mockResolvedValue(mockHabit);
+
+    await deleteHabit(req, res);
+
+    expect(mockHabit.destroy).toHaveBeenCalled();
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith({
+      message: "習慣が正常に削除されました。",
+    });
+  });
+
+  it("認証情報（req.user）がない場合、401エラーを返すこと", async () => {
+    const { deleteHabit } = await import("../habitController");
+    delete req.user;
+
+    await deleteHabit(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(401);
+    expect(res.json).toHaveBeenCalledWith({ message: "認証されていません。" });
+  });
+
+  it("習慣が見つからない場合、404エラーを返すこと", async () => {
+    const { deleteHabit } = await import("../habitController");
+    db.Habit.findByPk.mockResolvedValue(null);
+
+    await deleteHabit(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(404);
+    expect(res.json).toHaveBeenCalledWith({
+      message: "習慣が見つかりません。",
+    });
+  });
+
+  it("他のユーザーの習慣を削除しようとした場合、403エラーを返すこと", async () => {
+    const { deleteHabit } = await import("../habitController");
+    db.Habit.findByPk.mockResolvedValue({
+      id: 1,
+      user_id: 2, // 異なるユーザーID
+      destroy: jest.fn(),
+    });
+
+    await deleteHabit(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(403);
+    expect(res.json).toHaveBeenCalledWith({ message: "許可されていません。" });
+  });
+
+  it("データベースエラーが発生した場合、500エラーを返すこと", async () => {
+    const { deleteHabit } = await import("../habitController");
+    db.Habit.findByPk.mockResolvedValue({
+      id: 1,
+      user_id: 1,
+      destroy: jest.fn().mockRejectedValue(new Error("Database error")),
+    });
+
+    await deleteHabit(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.json).toHaveBeenCalledWith({
+      message: "習慣の削除中にエラーが発生しました。",
     });
   });
 });

@@ -70,4 +70,26 @@ export class HabitService {
       throw new Error(data.message || "習慣の更新に失敗しました。");
     }
   }
+
+  async deleteHabit(habitId) {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      throw new Error("認証トークンが見つかりません。");
+    }
+
+    const response = await fetch(`${this.apiUrl}/api/v1/habits/${habitId}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (response.ok) {
+      return;
+    } else {
+      const data = await response.json();
+      throw new Error(data.message || "習慣の削除に失敗しました。");
+    }
+  }
 }

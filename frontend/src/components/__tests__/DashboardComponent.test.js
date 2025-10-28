@@ -18,6 +18,7 @@ jest.mock("../../services/HabitService", () => ({
     getHabits: jest.fn(),
     createHabit: jest.fn(),
     updateHabit: jest.fn(),
+    deleteHabit: jest.fn(),
   })),
 }));
 
@@ -25,6 +26,7 @@ describe("DashboardComponent", () => {
   let mockGetHabits;
   let mockCreateHabit;
   let mockUpdateHabit;
+  let mockDeleteHabit;
   let container; // Declare container here
 
   beforeEach(() => {
@@ -35,11 +37,13 @@ describe("DashboardComponent", () => {
     mockGetHabits = jest.fn();
     mockCreateHabit = jest.fn();
     mockUpdateHabit = jest.fn();
+    mockDeleteHabit = jest.fn();
 
     HabitService.mockImplementation(() => ({
       getHabits: mockGetHabits,
       createHabit: mockCreateHabit,
       updateHabit: mockUpdateHabit,
+      deleteHabit: mockDeleteHabit,
     }));
 
     container = document.createElement("div");
@@ -179,5 +183,27 @@ describe("DashboardComponent", () => {
 
     expect(dashboard.isFormVisible).toBe(false);
     expect(container.querySelector(".no-habits-message")).not.toBeNull(); // Dashboard content should be back
+  });
+
+  test("削除ボタンがクリックされたときに習慣が削除されること", async () => {
+    const mockHabits = [{ id: "1", name: "Test Habit 1", type: "BOOLEAN" }];
+    mockGetHabits.mockResolvedValue(mockHabits);
+    mockDeleteHabit.mockResolvedValue(); // Simulate successful deletion
+
+    const dashboard = new DashboardComponent(container);
+    await dashboard.init();
+
+    const deleteButton = container.querySelector(".delete-habit-button");
+    expect(deleteButton).not.toBeNull();
+
+    // Mock confirm to return true
+    window.confirm = jest.fn(() => true);
+
+    deleteButton.click();
+
+    expect(window.confirm).toHaveBeenCalledWith(
+      "本当にこの習慣を削除しますか？"
+    );
+    expect(mockDeleteHabit).toHaveBeenCalledWith("1");
   });
 });

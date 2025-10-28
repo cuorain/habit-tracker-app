@@ -215,8 +215,60 @@ describe("HabitService", () => {
 
   it("updateHabitでトークンが存在しない場合、エラーをスローすること", async () => {
     localStorage.removeItem("token");
-    const updatedHabit = { id: "1", name: "Update without token", type: "BOOLEAN" };
+    const updatedHabit = {
+      id: "1",
+      name: "Update without token",
+      type: "BOOLEAN",
+    };
     await expect(habitService.updateHabit("1", updatedHabit)).rejects.toThrow(
+      "認証トークンが見つかりません。"
+    );
+  });
+
+  it("習慣を正常に削除できること", async () => {
+    global.fetch.mockImplementationOnce((url, options) => {
+      if (
+        url === `${process.env.VITE_API_URL}/api/v1/habits/1` &&
+        options.method === "DELETE"
+      ) {
+        return Promise.resolve({
+          ok: true,
+          json: () =>
+            Promise.resolve({ message: "Habit deleted successfully" }),
+        });
+      }
+      return Promise.reject(new Error("Unknown API call"));
+    });
+
+    await expect(habitService.deleteHabit("1")).resolves.toBeUndefined();
+    expect(fetch).toHaveBeenCalledWith(
+      `${process.env.VITE_API_URL}/api/v1/habits/1`,
+      {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${mockToken}`,
+        },
+      }
+    );
+  });
+
+  it("習慣の削除に失敗した場合、エラーをスローすること", async () => {
+    global.fetch.mockImplementationOnce(() =>
+      Promise.resolve({
+        ok: false,
+        json: () => Promise.resolve({ message: "習慣の削除に失敗しました。" }),
+      })
+    );
+
+    await expect(habitService.deleteHabit("1")).rejects.toThrow(
+      "習慣の削除に失敗しました。"
+    );
+  });
+
+  it("deleteHabitでトークンが存在しない場合、エラーをスローすること", async () => {
+    localStorage.removeItem("token");
+    await expect(habitService.deleteHabit("1")).rejects.toThrow(
       "認証トークンが見つかりません。"
     );
   });

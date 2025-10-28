@@ -319,3 +319,33 @@ export const updateHabit = async (req, res) => {
     res.status(500).json({ message: "習慣の更新中にエラーが発生しました。" });
   }
 };
+
+export const deleteHabit = async (req, res) => {
+  try {
+    // 認証チェック
+    if (!req.user) {
+      return res.status(401).json({ message: "認証されていません。" });
+    }
+
+    const { Habit } = db;
+    const userId = req.user.id;
+    const habitId = req.params.id;
+
+    const habit = await Habit.findByPk(habitId);
+
+    if (!habit) {
+      return res.status(404).json({ message: "習慣が見つかりません。" });
+    }
+
+    if (habit.user_id !== userId) {
+      return res.status(403).json({ message: "許可されていません。" });
+    }
+
+    await habit.destroy();
+
+    res.status(200).json({ message: "習慣が正常に削除されました。" });
+  } catch (error) {
+    console.error("習慣の削除中にエラーが発生しました:", error);
+    res.status(500).json({ message: "習慣の削除中にエラーが発生しました。" });
+  }
+};
