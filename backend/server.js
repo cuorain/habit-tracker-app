@@ -8,6 +8,10 @@ import "dotenv/config";
 import express from "express";
 // CORSミドルウェアをインポート
 import cors from "cors";
+// httpsモジュールをインポート
+import https from "https";
+// fsモジュールをインポート
+import fs from "fs";
 
 // サーバーがリッスンするポート。環境変数から取得、なければ8080。
 const PORT = process.env.PORT || 8080;
@@ -49,11 +53,10 @@ const initializeApp = async () => {
   return app;
 };
 
-// テスト環境でない場合のみサーバーをリッスンする
-if (process.env.NODE_ENV !== "test") {
+// 本番環境のみHTTPSサーバーを起動する。テスト環境と開発環境はHTTPサーバーを起動する。
+if (process.env.NODE_ENV == "production") {
   initializeApp()
     .then((app) => {
-      const fs = require("fs");
       // 証明書と秘密鍵のパスを環境変数から取得
       const tlsKeyPath = process.env.TLS_KEY_PATH;
       const tlsCertPath = process.env.TLS_CERT_PATH;
@@ -61,8 +64,20 @@ if (process.env.NODE_ENV !== "test") {
       const privateKey = fs.readFileSync(tlsKeyPath, "utf8");
       const certificate = fs.readFileSync(tlsCertPath, "utf8");
       const credentials = { key: privateKey, cert: certificate };
-      const httpsServer = require("https").createServer(credentials, app);
+      const httpsServer = https.createServer(credentials, app);
       httpsServer.listen(PORT, "0.0.0.0", () => {
+        console.log(`Server running on port ${PORT}`);
+      });
+    })
+    .catch((err) => {
+      console.error("Failed to start server:", err);
+    });
+}
+// 開発環境の場合HTTPでサーバーをリッスンする（環境変数ないためtest以外にしている）
+else if (process.env.NODE_ENV !== "test") {
+  initializeApp()
+    .then((app) => {
+      app.listen(PORT, "0.0.0.0", () => {
         console.log(`Server running on port ${PORT}`);
       });
     })
