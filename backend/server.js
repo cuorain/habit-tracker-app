@@ -53,7 +53,16 @@ const initializeApp = async () => {
 if (process.env.NODE_ENV !== "test") {
   initializeApp()
     .then((app) => {
-      app.listen(PORT, "0.0.0.0", () => {
+      const fs = require("fs");
+      // 証明書と秘密鍵のパスを環境変数から取得
+      const tlsKeyPath = process.env.TLS_KEY_PATH;
+      const tlsCertPath = process.env.TLS_CERT_PATH;
+      // 証明書と秘密鍵を読み込む
+      const privateKey = fs.readFileSync(tlsKeyPath, "utf8");
+      const certificate = fs.readFileSync(tlsCertPath, "utf8");
+      const credentials = { key: privateKey, cert: certificate };
+      const httpsServer = require("https").createServer(credentials, app);
+      httpsServer.listen(PORT, "0.0.0.0", () => {
         console.log(`Server running on port ${PORT}`);
       });
     })
