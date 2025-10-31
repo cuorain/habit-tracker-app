@@ -15,7 +15,7 @@ export default defineConfig({
   define: {
     // process.envをブラウザ環境で使えるようにする
     "process.env": {
-      VITE_API_URL: process.env.VITE_API_URL || "http://localhost:8080",
+      VITE_API_URL: isProduction ? "/" : "http://localhost:8080",
     },
   },
   resolve: {
