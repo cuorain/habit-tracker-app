@@ -35,7 +35,10 @@ const initializeApp = async () => {
   // キャメルケースのJSONキーをスネークケースに変換するミドルウェアを追加
   app.use(convertKeysToSnakeCase);
   // CORSを有効にするミドルウェア。特定のオリジンからのリクエストのみを許可。
-  app.use(cors({ origin: "http://localhost:5173" }));
+  const allowedOrigins = process.env.CORS_ORIGINS
+    ? process.env.CORS_ORIGINS.split(",")
+    : ["http://localhost:5173"];
+  app.use(cors({ origin: allowedOrigins }));
 
   // ルート定義
   // ヘルスチェックまたはルートパスへのGETリクエスト
