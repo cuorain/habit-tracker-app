@@ -7,6 +7,7 @@ export default defineConfig({
   server: {
     port: 5173,
     host: true,
+    https: true,
   },
   define: {
     // process.envをブラウザ環境で使えるようにする
