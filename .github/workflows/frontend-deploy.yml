@@ -36,7 +36,8 @@ jobs:
           file: ./frontend/Dockerfile.prod
           push: true
           tags: ghcr.io/${{ github.repository }}/frontend:${{ steps.get_version_tag.outputs.version_tag }}
-
+          build-args: |
+            VITE_API_URL=${{ secrets.VITE_API_URL }}
   create-pr-updating-k8s-manifests:
     needs: build-and-push-frontend-docker
     runs-on: ubuntu-latest
